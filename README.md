@@ -45,11 +45,39 @@ setup considerably.
 We would like to simplify the data variables to use a single location,
 and to allow editing to add or remove data libraries.
 
+On Mac OS X, we need to investigate if DYLD_LIBRARY_PATH is actually
+needed anymore due to CMake setting the install name of the Geant4
+libraries.
+
 
 geant4make.(c)sh
 ================
 The task of this script is set the needed environment variables required
 to build a Geant4 application using Geant4's GNU makefile system.
+
+As with geant4.(c)sh, we want to have one input file for each shell family.
+The possibly tricky part here is that we don't want to set some variables
+so it's not simply a case of having something like
+
+export VARIABLE=@CMAKE_VARIABLE_NAME@
+
+because that will still result in the variable being set in the environment.
+Geant4's GNU make system only checks if variables are set, not their value.
+That means we may misconfigure the GNU make system. Something like the
+cmakedefine behaviour is needed...
+
+We want to add support for setting up the third party packages used, such
+as Qt. We have all the information needed in CMake, but we will need to
+translate it into the variables and form expected by Geant4 GNU make.
+The variables are:
+
+* X11 : X11FLAGS, X11LIBS
+* Xm  : XMFLAGS, XMLIBS
+* OpenGL : OGLFLAGS, OGLLIBS
+* Qt :  QTHOME, QTMOC, QTFLAGS, QTLIBS, GLQTLIBS
+* CLHEP :
+* EXPAT :
+* XERCESC : XERCESCROOT, GDMLFLAGS, GDMLLIBS
 
 
 geant4-config
