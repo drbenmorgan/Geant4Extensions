@@ -15,7 +15,10 @@ project(Geant4DevelopmentTools)
 # This functionality is primarily for developers, but also allows an
 # in place build if user requires.
 #
-foreach(_template Templates/geant4.sh.in Templates/geant4.csh.in)
+foreach(_template 
+    Templates/geant4.sh.in 
+    Templates/geant4.csh.in
+    Templates/geant4-config.in)
   string(REGEX REPLACE
     ".*/(.*)\\.in$"
     "${PROJECT_BINARY_DIR}/CurrentGeant4Build/bin/\\1"
@@ -23,6 +26,33 @@ foreach(_template Templates/geant4.sh.in Templates/geant4.csh.in)
     ${_template})
   configure_file(${_template} ${_outfile} @ONLY)
 endforeach()
+
+#----------------------------------------------------------------------------
+# Hmm, geant4-config needs to be executable...
+# This works, but it seems messy...
+set(LOCAL_GEANT4_BINDIR ${PROJECT_BINARY_DIR}/CurrentGeant4Build/bin)
+set(LOCAL_GEANT4CONFIG ${LOCAL_GEANT4_BINDIR}/geant4-config)
+
+# - Copy the script to a temporary directory so we can change the perms
+file(COPY ${LOCAL_GEANT4CONFIG}
+  DESTINATION ${LOCAL_GEANT4_BINDIR}/.g4tmp
+  FILE_PERMISSIONS 
+    OWNER_READ OWNER_WRITE OWNER_EXECUTE
+    GROUP_READ GROUP_EXECUTE
+    WORLD_READ WORLD_EXECUTE)
+
+# - Remove the original file...
+file(REMOVE ${LOCAL_GEANT4CONFIG})
+
+# - Copy the file with changed permissions back...
+file(COPY ${LOCAL_GEANT4_BINDIR}/.g4tmp/geant4-config
+  DESTINATION ${LOCAL_GEANT4_BINDIR})
+
+# - Remove the tmp directory used for the copy...
+file(REMOVE_RECURSE ${LOCAL_GEANT4_BINDIR}/.g4tmp)
+
+# Got to be an easier way than this.... Could just have the original file
+# with appropriate permissions, depending on repository policy...
 
 
 #----------------------------------------------------------------------------
@@ -33,7 +63,8 @@ endforeach()
 #
 set(INSTALL_TREE_FILES
   Templates/geant4.sh.in
-  Templates/geant4.csh.in)
+  Templates/geant4.csh.in
+  Templates/geant4-config.in)
 
 foreach(_template ${INSTALL_TREE_FILES})
   # Strip out the filename and prepend the output directory
@@ -45,4 +76,4 @@ foreach(_template ${INSTALL_TREE_FILES})
   configure_file(${_template} ${_outfile} @ONLY)
 endforeach()
 
-
+# - Install them....
