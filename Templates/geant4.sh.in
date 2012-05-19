@@ -16,11 +16,34 @@
 #--------------------------------------------------------------------------
 # Locate the directory we're installed in
 #
+if [ -z "$BASH_VERSION" ] ; then
+  # Not bash, so rely on sourcing from correct location
+  # TODO : better error reporting/handling, deal with ksh/zsh?
+  if [ ! -f geant4.sh ] ; then
+    echo "ERROR: cd to location of geant4.sh and source it there"
+    return 1
+  fi
+  g4script_dir=$(pwd)
+else
+  g4script_sourced_dir=$(dirname ${BASH_ARGV[0]})
+  g4script_dir=$(cd $g4script_sourced_dir > /dev/null ; pwd)
+fi
 
 #--------------------------------------------------------------------------
 # Set the binary and library paths.
 # Path variables are prepended so that this Geant4 will be found first.
 #
+if [ "x$PATH" = "x" ] ; then
+  echo PATH=${g4script_dir}
+else
+  echo PATH=${g4script_dir}:$PATH
+fi
+
+if [ "x$@PLATFORM_LD_LIBRARY_PATH_NAME@" = "x" ] ; then
+  echo @PLATFORM_LD_LIBRARY_PATH_NAME@=${g4script_dir}
+else
+  echo @PLATFORM_LD_LIBRARY_PATH_NAME@=${g4script_dir}:$@PLATFORM_LD_LIBRARY_PATH_NAME@
+fi
 
 #--------------------------------------------------------------------------
 # Geant4 Physics Data resource paths.

@@ -8,6 +8,17 @@ cmake_minimum_required(VERSION 2.6.4 FATAL_ERROR)
 project(Geant4DevelopmentTools)
 
 
+
+#-----------------------------------------------------------------------
+# General configuration
+#
+# - OS X vs Linux library search path
+set(PLATFORM_LD_LIBRARY_PATH_NAME "LD_LIBRARY_PATH")
+if(APPLE AND UNIX)
+  set(PLATFORM_LD_LIBRARY_PATH_NAME "DYLD_LIBRARY_PATH")
+endif()
+
+
 #----------------------------------------------------------------------------
 # Configure files for the BUILD tree
 # Files : geant4make.(c)sh, geant4-config, Geant4Make.gmk
