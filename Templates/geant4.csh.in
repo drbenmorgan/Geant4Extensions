@@ -23,25 +23,26 @@ set g4script_sourced_dir="`dirname ${ARGS[2]}`"
 set g4script_dir="`cd $g4script_sourced_dir > /dev/null ; pwd`" 
 
 #--------------------------------------------------------------------------
-# Set the binary and library paths.
+# Derive and set the binary and library paths.
 # Path variables are prepended so that this Geant4 will be found first.
 #
+set g4bindir=$g4script_dir
+set g4libdir="`cd $g4bindir/@GEANT4_BINDIR_TO_LIBDIR@ > /dev/null ; pwd`"
+
 if ( ! ${?PATH} ) then
-  echo PATH ${g4script_dir}
+  echo PATH ${g4bindir}
 else
-  echo PATH ${g4script_dir}:$PATH
+  echo PATH ${g4bindir}:$PATH
 endif
 
 if ( ! ${?@PLATFORM_LD_LIBRARY_PATH_NAME@} ) then
-  echo @PLATFORM_LD_LIBRARY_PATH_NAME@ ${g4script_dir}
+  echo @PLATFORM_LD_LIBRARY_PATH_NAME@ ${g4libdir}
 else
-  echo @PLATFORM_LD_LIBRARY_PATH_NAME@ ${g4script_dir}:$@PLATFORM_LD_LIBRARY_PATH_NAME@
+  echo @PLATFORM_LD_LIBRARY_PATH_NAME@ ${g4libdir}:$@PLATFORM_LD_LIBRARY_PATH_NAME@
 endif
 
 #--------------------------------------------------------------------------
 # Geant4 Physics Data resource paths.
 # These paths are only set if CMake was used to install the resources
 #
-
-
 
