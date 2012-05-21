@@ -108,3 +108,10 @@ foreach(_template ${INSTALL_TREE_FILES})
 endforeach()
 
 # - Install them....
+
+#-----------------------------------------------------------------------
+# Testing
+#
+enable_testing()
+add_subdirectory(tests)
+
