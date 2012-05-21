@@ -16,11 +16,15 @@ set(CHECKBASHISMS_EXECUTABLE ${PROJECT_SOURCE_DIR}/tests/checkbashisms.pl)
 add_test(CheckBashisms-geant4-config_install
   ${CHECKBASHISMS_EXECUTABLE} ${PROJECT_BINARY_DIR}/InstallTreeFiles/geant4-config)
 
+add_test(CheckBashisms-geant4_sh_install
+  ${CHECKBASHISMS_EXECUTABLE} ${PROJECT_BINARY_DIR}/InstallTreeFiles/geant.sh)
+
 #-----------------------------------------------------------------------
 # Check bashisms in Build tree files
 #
 add_test(CheckBashisms-geant4-config_build
   ${CHECKBASHISMS_EXECUTABLE} ${GEANT4_BUILD_BINDIR}/geant4-config)
 
-
+add_test(CheckBashisms-geant4_sh_build
+  ${CHECKBASHISMS_EXECUTABLE} ${GEANT4_BUILD_BINDIR}/geant.sh)
 
