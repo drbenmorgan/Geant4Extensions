@@ -40,7 +40,12 @@ set_property(TEST TestCshSourceInScriptFails
 add_test(NAME TestCshSourceInScriptInBinDir
   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
   COMMAND ${PROJECT_SOURCE_DIR}/tests/testSourceGeant4InDir.csh)
+set_property(TEST TestCshSourceInScriptInBinDir 
+  PROPERTY FAIL_REGULAR_EXPRESSION "^geant4\\.csh:ERROR: could not locate Geant4 installation")
 
 add_test(NAME TestCshSourceInScriptWithArgs
   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
   COMMAND ${PROJECT_SOURCE_DIR}/tests/testSourceGeant4WithArg.csh)
+set_property(TEST TestCshSourceInScriptWithArgs 
+  PROPERTY FAIL_REGULAR_EXPRESSION "^geant4\\.csh:ERROR: could not locate Geant4 installation")
+
