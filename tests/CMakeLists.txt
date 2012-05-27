@@ -28,3 +28,19 @@ add_test(CheckBashisms-geant4-config_build
 add_test(CheckBashisms-geant4_sh_build
   ${CHECKBASHISMS_EXECUTABLE} ${GEANT4_BUILD_BINDIR}/geant.sh)
 
+#-----------------------------------------------------------------------
+# Check csh scripts can be sourced from other scripts
+#
+add_test(NAME TestCshSourceInScriptFails
+  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+  COMMAND ${PROJECT_SOURCE_DIR}/tests/testSourceGeant4.csh)
+set_property(TEST TestCshSourceInScriptFails 
+  PROPERTY PASS_REGULAR_EXPRESSION "^geant4\\.csh:ERROR: could not locate Geant4 installation")
+
+add_test(NAME TestCshSourceInScriptInBinDir
+  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+  COMMAND ${PROJECT_SOURCE_DIR}/tests/testSourceGeant4InDir.csh)
+
+add_test(NAME TestCshSourceInScriptWithArgs
+  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+  COMMAND ${PROJECT_SOURCE_DIR}/tests/testSourceGeant4WithArg.csh)
