@@ -13,10 +13,22 @@ project(Geant4DevelopmentTools)
 # TODO : Check case when user supplies absolute paths
 include(GNUInstallDirs)
 
+# - temp: set directory for GMake files to bindir for now
+set(CMAKE_INSTALL_GMAKEDIR "${CMAKE_INSTALL_BINDIR}")
+set(CMAKE_INSTALL_FULL_GMAKEDIR "${CMAKE_INSTALL_FULL_BINDIR}")
+
 set(GEANT4_BUILD_PREFIX ${PROJECT_BINARY_DIR}/CurrentGeant4Build)
-foreach(_d EXECPREFIX BINDIR LIBDIR)
+foreach(_d EXECPREFIX BINDIR LIBDIR GMAKEDIR)
   set(GEANT4_BUILD_${_d} ${GEANT4_BUILD_PREFIX}/${CMAKE_INSTALL_${_d}})
 endforeach()
+
+#-----------------------------------------------------------------------
+# Find packages that Geant4 may use
+# Not completely comprehensive - aim is simply to see how best to
+# export information on header and library paths from the CMake layer
+# to the Shell/Make toolchain interfaces
+#
+find_package(Qt4)
 
 #-----------------------------------------------------------------------
 # General script configuration variables
@@ -37,12 +49,19 @@ endif()
 set(BUILD_TREE_FILES
   Templates/geant4.sh.in
   Templates/geant4.csh.in
-  Templates/geant4-config.in)
+  Templates/geant4-config.in
+  Templates/geant4make.sh.in)
 
-# - We locate paths relative to GEANT4_BUILD_BINDIR
+# - We locate paths relative to GEANT4_BUILD_BINDIR...
 file(RELATIVE_PATH GEANT4_BINDIR_TO_PREFIX ${GEANT4_BUILD_BINDIR} ${GEANT4_BUILD_PREFIX})
 file(RELATIVE_PATH GEANT4_BINDIR_TO_EXECPREFIX ${GEANT4_BUILD_BINDIR} ${GEANT4_BUILD_EXECPREFIX})
 file(RELATIVE_PATH GEANT4_BINDIR_TO_LIBDIR ${GEANT4_BUILD_BINDIR} ${GEANT4_BUILD_LIBDIR})
+
+# - ... and to GEANT4_BUILD_GMAKEDIR
+file(RELATIVE_PATH GEANT4_GMAKEDIR_TO_PREFIX ${GEANT4_BUILD_GMAKEDIR} ${GEANT4_BUILD_PREFIX})
+file(RELATIVE_PATH GEANT4_GMAKEDIR_TO_EXECPREFIX ${GEANT4_BUILD_GMAKEDIR} ${GEANT4_BUILD_EXECPREFIX})
+file(RELATIVE_PATH GEANT4_GMAKEDIR_TO_LIBDIR ${GEANT4_BUILD_GMAKEDIR} ${GEANT4_BUILD_LIBDIR})
+
 
 foreach(_template ${BUILD_TREE_FILES})
   string(REGEX REPLACE
@@ -90,12 +109,18 @@ file(REMOVE_RECURSE ${GEANT4_BUILD_BINDIR}/.g4tmp)
 set(INSTALL_TREE_FILES
   Templates/geant4.sh.in
   Templates/geant4.csh.in
-  Templates/geant4-config.in)
+  Templates/geant4-config.in
+  Templates/geant4make.sh.in)
 
 # - We locate paths relative to CMAKE_INSTALL_BINDIR
 file(RELATIVE_PATH GEANT4_BINDIR_TO_PREFIX ${CMAKE_INSTALL_FULL_BINDIR} ${CMAKE_INSTALL_PREFIX})
 file(RELATIVE_PATH GEANT4_BINDIR_TO_EXECPREFIX ${CMAKE_INSTALL_FULL_BINDIR} ${CMAKE_INSTALL_PREFIX})
 file(RELATIVE_PATH GEANT4_BINDIR_TO_LIBDIR ${CMAKE_INSTALL_FULL_BINDIR} ${CMAKE_INSTALL_FULL_LIBDIR})
+
+# - ... and to GEANT4_BUILD_GMAKEDIR
+file(RELATIVE_PATH GEANT4_GMAKEDIR_TO_PREFIX ${CMAKE_INSTALL_FULL_GMAKEDIR} ${CMAKE_INSTALL_PREFIX})
+file(RELATIVE_PATH GEANT4_GMAKEDIR_TO_EXECPREFIX ${CMAKE_INSTALL_FULL_GMAKEDIR} ${CMAKE_INSTALL_PREFIX})
+file(RELATIVE_PATH GEANT4_GMAKEDIR_TO_LIBDIR ${CMAKE_INSTALL_FULL_GMAKEDIR} ${CMAKE_INSTALL_FULL_LIBDIR})
 
 foreach(_template ${INSTALL_TREE_FILES})
   # Strip out the filename and prepend the output directory

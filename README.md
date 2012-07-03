@@ -4,12 +4,12 @@ A small project to improve the configuration, install and usability of
 the tools used for setting up Geant4 and developing applications.
 
 * geant4.(c)sh : Basic environment setup, paths and data.
-* geant4make.(c)sh : Old style environment setup for Geant4 GNUmake system.
+* geant4gmake.(c)sh : Old style environment setup for Geant4 GNUmake system.
 * geant4-config : Tool for querying paths and available features.
-* Geant4Make.gmk : New style pure GNU make setup for Geant4 GNUmake system.
+* Geant4GMake.gmk : New style pure GNU make setup for Geant4 GNUmake system.
 
 These are all UNIX tools only, we do not support Cygwin/WIN32 here.
-CMake is the recommended tool here, though other native setup scripts
+CMake is the recommended tool on Win32, though other native setup scripts
 could be considered (NMake?). Nevertheless, will want to consider
 something better than current manual setup of DLL and data paths, perhaps
 a .bat script or registry entries?
@@ -17,6 +17,40 @@ a .bat script or registry entries?
 Script setup has gotten quite complicated, so the aim is to simplify current
 CMake system for generating the scripts and to rationalize the number
 of scripts.
+
+
+Filesystem Layout
+=================
+Really just a sketch for now based on what is doen and 9.5 and identified
+issues (certainly not cast in stone)
+
+CMAKE_INSTALL_PREFIX/
++- bin/
+|  +- geant4-config
+|  +- geant4.(c)sh
++- lib/
+|   +- Geant4-9.5.0/
+|      +- Geant4Config.cmake
+|      +- Geant4GMake.(c)sh
+|      +- Geant4GMake.gmk
++- share/
+   +- Geant4-9.5.0/
+      +- Geant4GMake/
+         +- config/
+
+Note that 'bin', 'lib' and 'share' are of course configurable.
+There's a case for moving Geant4GMake.(c)sh to the bin directory. Whilst
+it is not strictly speaking a true binary, it is platform dependent so
+needs to be in bin or under lib. We already have geant4-config in bin,
+which is a true script, and platform dependent, as is geant4.(c)sh.
+However, as it's fairly tightly connected with development, it may be
+more logical to have it alongside other development files like the
+CMake and GNUmake config files. Also, we can set up geant4-config
+to output full paths to these scripts.
+
+The GNUmake fragments are kept under share because they are platform
+independent (although the configuration will pick files under
+config/sys as needed).
 
 
 geant4.(c)sh
@@ -50,7 +84,7 @@ needed anymore due to CMake setting the install name of the Geant4
 libraries.
 
 
-geant4make.(c)sh
+geant4gmake.(c)sh
 ================
 The task of this script is set the needed environment variables required
 to build a Geant4 application using Geant4's GNU makefile system.
@@ -87,8 +121,8 @@ can be queried to get the binary, include and library paths of the Geant4
 install, plus libraries and enabled features.
 
 
-Geant4Make.gmk
-==============
+Geant4GMake.gmk
+===============
 The task of this makefile fragment is to set the needed make variables
 needed to build a Geant4 application using Geant4's GNU makefile system.
 This mirrors the task of geant4make.(c)sh, but is implemented in pure
@@ -99,6 +133,8 @@ Configuration of an application may still be done via variables like
 G4UI_USE_TCSH through the environment or makefile variables, but the gmk
 file will allow checks to be applied so that the user cannot activate a
 feature which is not installed.
+
+The variable set is essentially the same as for geant4gmake.(c)sh.
 
 It will also provide some custom targets to print out the features of the
 used Geant4 install.
