@@ -8,6 +8,36 @@ cmake_minimum_required(VERSION 2.6.4 FATAL_ERROR)
 project(Geant4DevelopmentTools)
 
 #-----------------------------------------------------------------------
+# System/Compiler detection
+# This is to give us the correct "G4SYSTEM = OS-COMPILER" combination
+# for the old toolchain.
+# On UNIX, we need to distinguish between GNU and LLVM...
+#
+if(NOT WIN32)
+  set(GEANT4_SYSTEM ${CMAKE_SYSTEM_NAME})
+else()
+  set(GEANT4_SYSTEM "WIN32")
+endif()
+
+# - Clang isn't detected reliably on CMake < 2.8.2: Will report
+# the compiler ID as "GNU". Conversely, on 2.8.2 and higher we need
+# to ensure correct clang flags are used (may well be same as GNU,
+# but still need to set them).
+
+if(CMAKE_COMPILER_IS_GNUCXX)
+  message(STATUS "GNU CXX : ${CMAKE_CXX_COMPILER}")
+  set(GEANT4_COMPILER "g++")
+elseif(MSVC)
+  set(GEANT4_COMPILER "VC")
+elseif(CMAKE_CXX_COMPILER MATCHES "icpc.*|icc.*")
+  set(GEANT4_COMPILER "icc")
+else()
+  set(GEANT4_COMPILER "UNSUPPORTED")
+endif()
+
+
+
+#-----------------------------------------------------------------------
 # Configure build product output and installation directories
 # TODO : Check which versions of CMake supply this module
 # TODO : Check case when user supplies absolute paths

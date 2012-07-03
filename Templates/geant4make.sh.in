@@ -140,5 +140,5 @@ unset  G4VIS_USE_RAYTRACERX
 #-----------------------------------------------------------------------
 # System description and standard install paths
 #
-export G4SYSTEM=@G4SYSTEM@
+export G4SYSTEM="@GEANT4_SYSTEM@-@GEANT4_COMPILER@"
 
