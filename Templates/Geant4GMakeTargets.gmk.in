@@ -1,0 +1,18 @@
+# - Geant4GMakeTargets.gmk
+# A set of custom targets to help with using Geant4's GNU make
+# build system. They are mainly query type targets to report on the
+# current Geant4 build/install being used.
+#
+
+#----------------------------------------------------------------------
+# Only make targets available if Geant4GMake.gmk has been included
+#
+ifdef G4GMAKE_INCLUDED
+.PHONY : geant4_info
+
+geant4_info:
+	@echo "geant4_info target"
+
+else
+$(info "-- disabling Geant4 GNU Make custom targets")
+endif

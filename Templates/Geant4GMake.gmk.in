@@ -1,0 +1,43 @@
+# - Geant4GMake.gmk
+# Configure Geant4 GNU make system for building user applications
+#
+# To use, simply include it at the top level of your application's
+# GNUmakefile.
+#
+# This file is configured by Geant4's CMake system and SHOULD NOT BE EDITED
+#
+
+#----------------------------------------------------------------------
+# Record inclusion
+#
+override G4GMAKE_INCLUDED := 1
+
+#----------------------------------------------------------------------
+# Self locate ourselves
+#
+override G4GMAKE_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+
+#----------------------------------------------------------------------
+# Path to the Geant4GMake custom targets file
+#
+override G4GMAKE_TARGETS := $(G4GMAKE_DIR)/Geant4GMakeTargets.gmk
+
+#----------------------------------------------------------------------
+# API for Geant4GMake
+#
+
+# g4gmake_config_variable : Define a fixed variable that is part of the
+#                           Geant4 configuration
+#
+define g4gmake_config_variable
+override $(1) := $(2)
+G4GMAKE_CONFIGURATION_VARIABLES += $(1)
+endef
+
+#----------------------------------------------------------------------
+# Configuration of this Geant4GMake instance - Configured by CMake
+#                                              DO NOT EDIT!
+#
+# - System Settings and Paths
+$(eval $(call g4gmake_config_variable,G4SYSTEM,@GEANT4_SYSTEM@-@GEANT4_COMPILER@))
+

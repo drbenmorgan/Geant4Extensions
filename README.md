@@ -85,7 +85,7 @@ libraries.
 
 
 geant4gmake.(c)sh
-================
+=================
 The task of this script is set the needed environment variables required
 to build a Geant4 application using Geant4's GNU makefile system.
 
