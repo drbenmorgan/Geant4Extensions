@@ -25,8 +25,9 @@ endif()
 # but still need to set them).
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-  message(STATUS "GNU CXX : ${CMAKE_CXX_COMPILER}")
   set(GEANT4_COMPILER "g++")
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  set(GEANT4_COMPILER "clang")
 elseif(MSVC)
   set(GEANT4_COMPILER "VC")
 elseif(CMAKE_CXX_COMPILER MATCHES "icpc.*|icc.*")
@@ -34,8 +35,6 @@ elseif(CMAKE_CXX_COMPILER MATCHES "icpc.*|icc.*")
 else()
   set(GEANT4_COMPILER "UNSUPPORTED")
 endif()
-
-
 
 #-----------------------------------------------------------------------
 # Configure build product output and installation directories
