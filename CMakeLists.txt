@@ -79,8 +79,8 @@ set(BUILD_TREE_FILES
   Templates/geant4.sh.in
   Templates/geant4.csh.in
   Templates/geant4-config.in
-  Templates/geant4make.sh.in
-  Templates/geant4make.cs.in)
+  Templates/geant4gmake.sh.in
+  Templates/geant4gmake.csh.in)
 
 # - We locate paths relative to GEANT4_BUILD_BINDIR...
 file(RELATIVE_PATH GEANT4_BINDIR_TO_PREFIX ${GEANT4_BUILD_BINDIR} ${GEANT4_BUILD_PREFIX})
@@ -140,8 +140,8 @@ set(INSTALL_TREE_FILES
   Templates/geant4.sh.in
   Templates/geant4.csh.in
   Templates/geant4-config.in
-  Templates/geant4make.sh.in
-  Templates/geant4make.csh.in)
+  Templates/geant4gmake.sh.in
+  Templates/geant4gmake.csh.in)
 
 # - We locate paths relative to CMAKE_INSTALL_BINDIR
 file(RELATIVE_PATH GEANT4_BINDIR_TO_PREFIX ${CMAKE_INSTALL_FULL_BINDIR} ${CMAKE_INSTALL_PREFIX})
