@@ -8,9 +8,9 @@ deposit is accounted in user actions and a dose in a selected volume
 is calculated. 
 
 	
-GEOMETRY DEFINITION
+Geometry Definition
 -------------------	
-The geometry is constructed in the B1DetectorConstruction class.
+The geometry is constructed in the `B1DetectorConstruction` class.
 The setup consists of a an envelope of box shape containing two
 volumes: a spherical cone and a trapezoid.
 
@@ -18,12 +18,12 @@ In this example we use  some common materials materials for medical
 applications. The envelope is made of water and the two inner volumes
 are made from tissue and bone materials.  
 
-The materials are created with the help of the G4NistManager class,
+The materials are created with the help of the `G4NistManager` class,
 which allows to build a material from the NIST database using their
 names. All available materials can be found in the Geant4 User's Guide
-for Application Developers, Appendix 9: Geant4 Materials Database.
+for Application Developers: [Appendix 10: Geant4 Materials Database](http://geant4.web.cern.ch/geant4/UserDocumentation/UsersGuides/ForApplicationDeveloper/html/apas10.html).
 
-PHYSICS LIST
+Physics List
 ------------
 The particle's type and the physic processes which will be available
 in this example are set in the `QGSP_BIC_EMY` physics list. This physics
@@ -32,11 +32,13 @@ path is defined via the `G4LEDATA` environment variable.
 
 In addition the build-in interactive command:
 
+```shell
 /process/(in)activate processName
+```
 
 allows to activate/inactivate the processes one by one.
 
-PRIMARY GENERATOR
+Primary Generator
 -----------------
 The primary generator is defined in the `B1PrimaryGeneratorAction` class.
 The default kinematic is a 6 MeV gamma, randomly distributed in front
@@ -44,7 +46,7 @@ of the envelope across 80% of the (X,Y) envelope size.
 This default setting can be changed via the Geant4 built-in commands 
 of the `G4ParticleGun` class.
 
-DETECTOR RESPONSE
+Detector Response
 -----------------
 This example demonstrates a simple scoring implemented directly
 in the user action classes. Alternative ways of scoring via
@@ -56,7 +58,7 @@ event in `B1EventAction`. The dose is then computed in
 `B1RunAction::EndOfRunAction()` and and its value is printed on the screen. 
 
 
-VISUALISATION
+Visualization
 -------------
 The visualization manager is set via the `G4VisExecutive` class
 in the `main()` function in `exampleB1.cc`.    
@@ -79,30 +81,31 @@ with the environment variable G4VIS_BUILD_OPENGLX_DRIVER.
 * `exampleB1.cc` has been compiled with `G4VIS_USE_OPENGLX` (This is best done through Configure or CMake).
 
 For more information on visualization, see the visualization tutorials
-for [DAWN](http://geant4.slac.stanford.edu/Presentations/vis/G4DAWNTutorial/G4DAWNTutorial.html), [OpenGL](http://geant4.slac.stanford.edu/Presentations/vis/G4OpenGLTutorial/G4OpenGLTutorial.html) and [DAWN](http://geant4.slac.stanford.edu/Presentations/vis/G4HepRAppTutorial/G4HepRAppTutorial.html),
+for [DAWN](http://geant4.slac.stanford.edu/Presentations/vis/G4DAWNTutorial/G4DAWNTutorial.html), [OpenGL](http://geant4.slac.stanford.edu/Presentations/vis/G4OpenGLTutorial/G4OpenGLTutorial.html) and [DAWN](http://geant4.slac.stanford.edu/Presentations/vis/G4HepRAppTutorial/G4HepRAppTutorial.html).
 
 The tracks are automatically drawn at the end of each event, accumulated
 for all events and erased at the beginning of the next run.
 
-USER INTERFACES
+User Interfaces
 ---------------
 The user command interface is set via the `G4UIExecutive` class
 in the the `main()` function in `exampleB1.cc` 
 The selection of the user command interface is then done automatically 
 according to the Geant4 configuration. The default command interface, 
-called G4UIterminal, is done via a standard G4cin/G4cout.
+called `G4UIterminal`, is done via a standard `G4cin/G4cout`.
 On Unix based systems one can use a smarter command interface, `G4UItcsh`. 
 It is enough to set the environment variable `G4UI_USE_TCSH` before 
 compiling.
 
-HOW TO RUN
+How to Run
 ----------
-* compile and link to generate an executable
+Compile and link to generate the executable
 ```shell
 $ cd B1
 $ make
 ```
 
+### Interactive Mode ###
 * execute `exampleB1` in the 'interactive mode' with visualization:
 ```shell
 $ exampleB1
@@ -116,16 +119,15 @@ Idle> /run/beamOn 10
 ...
 Idle> exit
 ```
-
 or
-
 ```
 Idle> /control/execute run1.mac
 ....
 Idle> exit
 ```
 
-* execute `exampleB1`  in the 'batch' mode from macro files (without visualization)
+### Batch Mode ###
+* execute `exampleB1`  in the 'batch' mode using macro files (without visualization)
 ```shell
 $ exampleB1 run2.mac
 $ exampleB1 exampleB1.in > exampleB1.out
