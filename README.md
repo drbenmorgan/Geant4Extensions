@@ -1,11 +1,105 @@
 SuperB1
 =======
-
 A super version of Geant4's B1 example application.
 
 This example demonstrates a very simple application where an energy
 deposit is accounted in user actions and a dose in a selected volume
-is calculated. 
+is calculated.
+
+
+Requirements
+------------
+### Core ###
+* Linux or Mac OS X system (Windows should also work)
+* C++ compiler (GNU, Clang, MSVC recommended)
+* [CMake](http://www.cmake.org) build tool, version 2.8 or higher.
+* CMake compatible build system (Make, Xcode, Visual Studio)
+* [Geant4](http://geant4.cern.ch) 9.5 or higher, with at least the Low 
+Energy Electromagnetic and Photon Evaporation data libraries available.
+
+### Optional ###
+* Geant4 9.5 or higher with [Qt4](http://qt.nokia.com/) support (to enable 
+GUI interface to SuperB1).
+
+
+How to Configure, Compile and Run SuperB1
+-----------------------------------------
+Create a directory in which to build `SuperB1`, and run CMake, pointing
+it to your Geant4 installation (the directory in which the 
+[Geant4Config.cmake](http://geant4.web.cern.ch/geant4/UserDocumentation/UsersGuides/InstallationGuide/html/ch03s02.html#sect.Geant4ConfigCmake) file resides, and the source code for SuperB1 (the directory in which this README 
+is located):
+
+```shell
+$ mkdir SuperB1-build
+$ cd SuperB1-build
+$ cmake -DGeant4_DIR=/path/to/Geant4ConfigDir /your/sourcedir
+```
+
+If configuration completes without error, CMake will have generated a
+Makefile in the build directory. You can then build the `SuperB1` 
+application by running
+
+```shell
+$ make -jN
+```
+
+where `N` is the number of parallel build jobs. On successful compilation
+you should have an executable named `SuperB1` in your build directory.
+This can be run directly without any further setup or installation.
+
+At present, `SuperB1` is not installed and so functions much as old-style
+Geant4 applications, where the `G4WORKDIR` directory was used to store
+build products.
+
+The above description assumes a Unix style system, where CMake will 
+generate Unix Makefiles by default. If you prefer working with another 
+build tool, CMake is capable of generating projects for a wide range 
+of IDEs and command line tools. Please see the [CMake Documentation on 
+Generators](http://cmake.org/cmake/help/v2.8.9/cmake.html#section_Generators) for help on supported build tools and creating projects for
+these tools using CMake. Note that available generators are platform and
+CMake version dependent!
+
+### Running SuperB1 in Interactive Mode ###
+Execute `SuperB1` in the 'interactive mode' with visualization:
+
+```shell
+$ ./SuperB1
+```
+
+This will start up a terminal or GUI session as selected at build
+time. From the resultant prompt, you can type in commands to control
+the application, e.g. those from `run1.mac`, line by line:  
+
+```
+Idle> /control/verbose 2
+Idle> /tracking/verbose 1
+Idle> /run/beamOn 10 
+...
+Idle> exit
+```
+
+You can also write commands into a script (also called 'macros' in Geant4
+parlance) and use the `/control/execute` command to run the script:
+
+```
+Idle> /control/execute run1.mac
+....
+Idle> exit
+```
+
+### Running SuperB1 in Batch Mode ###
+Execute `SuperB1` in 'batch' mode (i.e. without interaction) by passing 
+macro files to it via the command line:
+
+```shell
+$ ./SuperB1 run2.mac
+```
+
+The output may also be redirected to file in the usual manner:
+
+```shell
+$ ./SuperB1 run2.mac > run2-results.txt
+```
 
 	
 Geometry Definition
@@ -25,9 +119,9 @@ for Application Developers: [Appendix 10: Geant4 Materials Database](http://gean
 
 Physics List
 ------------
-The particle's type and the physic processes which will be available
+The particle types and physics processes which will be available
 in this example are set in the `QGSP_BIC_EMY` physics list. This physics
-list requires data files for low energy electromagnetic processes which
+list requires data files for low energy electromagnetic processes whose
 path is defined via the `G4LEDATA` environment variable.
 
 In addition the build-in interactive command:
@@ -62,7 +156,7 @@ event in `B1EventAction`. The dose is then computed in
 Visualization
 -------------
 The visualization manager is set via the `G4VisExecutive` class
-in the `main()` function in `exampleB1.cc`.    
+in the `main()` function in `SuperB1.cc`.    
 The initialisation of the drawing is done via a set of `/vis/` commands
 in the macro `vis.mac`. This macro is automatically read from
 the main function when the example is used in interactive running mode.
@@ -74,12 +168,9 @@ and instead uncommenting one of the other `/vis/open` statements, such as
 `HepRApp` and `DAWN` viewers, respectively).
 
 The `DAWNFILE`, `HepRepFile` drivers are always available
-(since they require no external libraries), but the `OpenGL` driver 
-requires:
-
-* the visualisation & interfaces categories have been compiled
-with the environment variable G4VIS_BUILD_OPENGLX_DRIVER.
-* `exampleB1.cc` has been compiled with `G4VIS_USE_OPENGLX` (This is best done through Configure or CMake).
+(since they require no external libraries). The `OpenGL` driver 
+requires that the Geant4 install used to build `SuperB1` has 
+`OpenGL` support
 
 For more information on visualization, see the visualization tutorials
 for [DAWN](http://geant4.slac.stanford.edu/Presentations/vis/G4DAWNTutorial/G4DAWNTutorial.html), [OpenGL](http://geant4.slac.stanford.edu/Presentations/vis/G4OpenGLTutorial/G4OpenGLTutorial.html) and [DAWN](http://geant4.slac.stanford.edu/Presentations/vis/G4HepRAppTutorial/G4HepRAppTutorial.html).
@@ -87,64 +178,19 @@ for [DAWN](http://geant4.slac.stanford.edu/Presentations/vis/G4DAWNTutorial/G4DA
 The tracks are automatically drawn at the end of each event, accumulated
 for all events and erased at the beginning of the next run.
 
+
 User Interfaces
 ---------------
 The user command interface is set via the `G4UIExecutive` class
-in the the `main()` function in `exampleB1.cc` 
+in the the `main()` function in `SuperB1.cc` 
 The selection of the user command interface is then done automatically 
 according to the Geant4 configuration. The default command interface, 
 called `G4UIterminal`, is done via a standard `G4cin/G4cout`.
-On Unix based systems one can use a smarter command interface, `G4UItcsh`. 
-It is enough to set the environment variable `G4UI_USE_TCSH` before 
-compiling.
+On Unix based systems one can use a smarter command interface, `G4UItcsh`.
+When Geant4 is built with Qt4 support, a full GUI interface is available.
 
-How to Run
-----------
-Compile and link to generate the executable
-```shell
-$ cd B1
-$ make
-```
+By default, `SuperB1` is configured so that it will have support for
+all available interfaces supplied by the install of Geant4 is is linked 
+to.
 
-### Interactive Mode ###
-Execute `exampleB1` in the 'interactive mode' with visualization:
-
-```shell
-$ exampleB1
-```
-
-This will start up a terminal or GUI session as selected at build
-time. From the resultant prompt, you can type in commands to control
-the application, e.g. those from `run1.mac`, line by line:  
-
-```
-Idle> /control/verbose 2
-Idle> /tracking/verbose 1
-Idle> /run/beamOn 10 
-...
-Idle> exit
-```
-
-You can also write commands into a script (also called 'macros' in Geant4
-parlance) and use the `/control/execute` command to run the script:
-
-```
-Idle> /control/execute run1.mac
-....
-Idle> exit
-```
-
-### Batch Mode ###
-Execute `exampleB1`  in 'batch' mode by passing macro files on the 
-command line(without visualization):
-
-```shell
-$ exampleB1 run2.mac
-```
-
-The output may also be redirected to file in the usual manner:
-
-```shell
-$ exampleB1 run2.mac > run2-results.txt
-```
 
