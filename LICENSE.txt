@@ -5,6 +5,8 @@ Copyright (c) Copyright Holders of the Geant4 Collaboration, 1994-2006.
 See http://cern.ch/geant4/license for details on the copyright holders.  All
 rights not expressly granted under this license are reserved.
 
+Copyright (c) 2012, Ben Morgan <bmorgan.warwick@gmail.com>
+
 This software includes voluntary contributions made to Geant4.
 See http://cern.ch/geant4 for more information on Geant4.
 
