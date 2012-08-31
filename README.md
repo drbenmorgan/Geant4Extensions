@@ -33,10 +33,11 @@ path is defined via the `G4LEDATA` environment variable.
 In addition the build-in interactive command:
 
 ```shell
-/process/(in)activate processName
+/process/activate processName
+/process/inactivate processName
 ```
 
-allows to activate/inactivate the processes one by one.
+allows the activation/inactivation of processes one by one.
 
 Primary Generator
 -----------------
