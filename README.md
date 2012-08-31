@@ -128,9 +128,16 @@ Idle> exit
 ```
 
 ### Batch Mode ###
-* execute `exampleB1`  in 'batch' mode by passing macro files on the 
+Execute `exampleB1`  in 'batch' mode by passing macro files on the 
 command line(without visualization):
+
 ```shell
 $ exampleB1 run2.mac
+```
+
+The output may also be redirected to file in the usual manner:
+
+```shell
+$ exampleB1 run2.mac > run2-results.txt
 ```
 
