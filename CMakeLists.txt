@@ -21,6 +21,12 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(SuperB1)
 
 #-----------------------------------------------------------------------
+# Prepend this project's custom CMake module/template path(s) to 
+# CMAKE_MODULE_PATH
+#
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake ${CMAKE_MODULE_PATH})
+
+#-----------------------------------------------------------------------
 # Find Geant4 package, activating all available UI and Vis drivers by 
 # default
 #
