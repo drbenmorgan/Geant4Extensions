@@ -107,12 +107,16 @@ $ make
 ```
 
 ### Interactive Mode ###
-* execute `exampleB1` in the 'interactive mode' with visualization:
+Execute `exampleB1` in the 'interactive mode' with visualization:
+
 ```shell
 $ exampleB1
 ```
 
-* type in the commands from `run1.mac` line by line:  
+This will start up a terminal or GUI session as selected at build
+time. From the resultant prompt, you can type in commands to control
+the application, e.g. those from `run1.mac`, line by line:  
+
 ```
 Idle> /control/verbose 2
 Idle> /tracking/verbose 1
@@ -120,7 +124,10 @@ Idle> /run/beamOn 10
 ...
 Idle> exit
 ```
-or
+
+You can also write commands into a script (also called 'macros' in Geant4
+parlance) and use the `/control/execute` command to run the script:
+
 ```
 Idle> /control/execute run1.mac
 ....
