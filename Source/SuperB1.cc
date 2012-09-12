@@ -35,12 +35,10 @@
 /// \file SuperB1.cc
 /// \brief Main program of the B1 example
 
-#include "B1DetectorConstruction.hh"
-#include "B1PrimaryGeneratorAction.hh"
-#include "B1RunAction.hh"
-#include "B1EventAction.hh"
-#include "B1SteppingAction.hh"
+// Standard Library
 
+// Third Party
+// - Geant4
 #include "G4RunManager.hh"
 #include "G4UImanager.hh"
 #include "QGSP_BIC_EMY.hh"
@@ -49,19 +47,35 @@
 #include "G4VisExecutive.hh"
 #endif
 
-#ifdef G4UI_USE
-#include "G4UIExecutive.hh"
-#endif
-
 #include "Randomize.hh"
 
-int main(int argc,char** argv)
-{
+// This Project
+#include "B1DetectorConstruction.hh"
+#include "B1PrimaryGeneratorAction.hh"
+#include "B1RunAction.hh"
+#include "B1EventAction.hh"
+#include "B1SteppingAction.hh"
+#include "UISessionFactory.hh"
+
+
+int main(int argc,char** argv) {
+  // - Create interactive session, hardcoded for now
+  // We prefer to create the session early so that all output goes
+  // to the logging channel of the session
+  geant4::UISessionFactory uiFactory = geant4::BuildUISessionFactory();
+  G4UIsession* ui = uiFactory.CreateProduct("qt",argc,argv);
+
+  if(!ui) {
+    std::cerr << "[SuperB1::error] session \"qt\" not recognized" 
+              << std::endl;
+    exit(EXIT_FAILURE);
+  }
+ 
   // - Choose the Random engine
   CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine);
   
   // - Construct the default run manager
-  G4RunManager * runManager = new G4RunManager;
+  G4RunManager* runManager = new G4RunManager;
 
   // - Set mandatory initialization classes
   // Detector construction
@@ -88,11 +102,10 @@ int main(int argc,char** argv)
   // - Initialize G4 kernel
   runManager->Initialize();
   
+  // - Initialize visualization, if required, by default, make it quiet 
 #ifdef G4VIS_USE
-  // - Initialize visualization
-  G4VisManager* visManager = new G4VisExecutive;
-  // G4VisExecutive can take a verbosity argument - see /vis/verbose guidance.
-  // G4VisManager* visManager = new G4VisExecutive("Quiet");
+  G4VisManager* visManager = new G4VisExecutive();
+  visManager->SetVerboseLevel(G4VisManager::quiet);
   visManager->Initialize();
 #endif
 
@@ -105,29 +118,26 @@ int main(int argc,char** argv)
     G4String fileName = argv[1];
     UImanager->ApplyCommand(command+fileName);
   } else {
-    // - We're in interactive mode : define UI session
-#ifdef G4UI_USE
-    G4UIExecutive* ui = new G4UIExecutive(argc, argv);
+    // - We're in interactive mode : configure our UI session depending
+    // on whether we have visualization active or not
 #ifdef G4VIS_USE
     UImanager->ApplyCommand("/control/execute Resources/init_vis.mac"); 
 #else
     UImanager->ApplyCommand("/control/execute Resources/init.mac"); 
 #endif
     ui->SessionStart();
-    delete ui;
-#endif
   }
-
+ 
   // - Job termination
-  // Free the store: user actions, physics_list and detector_description are
-  // owned and deleted by the run manager, so they should not be deleted 
-  // in the main() program !
-  
+  // Free the store: user actions, physics_list and detector_description 
+  // are owned and deleted by the run manager, so they should not be 
+  // deleted in the main() program !
 #ifdef G4VIS_USE
   delete visManager;
 #endif
   delete runManager;
-
+  delete ui;
+  
   return 0;
 }
 

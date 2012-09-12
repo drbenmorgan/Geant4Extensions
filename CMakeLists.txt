@@ -32,7 +32,7 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake ${CMAKE_MODULE_PATH})
 #
 option(WITH_GEANT4_UIVIS "Build example with Geant4 UI and Vis drivers" ON)
 if(WITH_GEANT4_UIVIS)
-  find_package(Geant4 REQUIRED ui_all vis_all)
+  find_package(Geant4 REQUIRED ui_all vis_all qt)
 else()
   find_package(Geant4 REQUIRED)
 endif()
@@ -59,6 +59,7 @@ set(SUPERB1_LIB_SOURCES
   Source/B1RunAction.hh
   Source/B1SteppingAction.cc
   Source/B1SteppingAction.hh
+  Source/UISessionFactory.hh
   )
 
 #-----------------------------------------------------------------------
