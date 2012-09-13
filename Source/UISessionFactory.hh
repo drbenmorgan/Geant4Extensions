@@ -19,7 +19,6 @@
 #include <map>
 #include <string>
 
-namespace geant4 {
 class UISessionFactory {
  public:
   typedef G4String IdentifierType;
@@ -60,8 +59,10 @@ G4UIsession* UITerminalSessionCreator(int, char**) {
   return new G4UIterminal(new ShellType);
 }
 
-}
-//Now we can sort of follow G4UIExecutive...
+//----------------------------------------------------------------------
+// Implementation - could be moved to cc file
+//----------------------------------------------------------------------
+// - Now we can sort of follow G4UIExecutive...
 // We can *probably* put this into a .cc eventually because the UIs
 // available at Geant4 build time are known exactly. Our builder interface
 // simply returns an initial instance of the factory, which we can then
@@ -80,7 +81,6 @@ G4UIsession* UITerminalSessionCreator(int, char**) {
 #include "G4UIWin32.hh"
 #endif
 
-namespace geant4 {
 UISessionFactory BuildUISessionFactory() {
   UISessionFactory f;
   f.Register("csh", UITerminalSessionCreator<G4UIcsh>);
@@ -99,7 +99,6 @@ UISessionFactory BuildUISessionFactory() {
 
   return f;
 }
-} // namespace geant4
 
 #endif // UISESSIONFACTORY_HH
 

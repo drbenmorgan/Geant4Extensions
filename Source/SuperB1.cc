@@ -62,7 +62,7 @@ int main(int argc,char** argv) {
   // - Create interactive session, hardcoded for now
   // We prefer to create the session early so that all output goes
   // to the logging channel of the session
-  geant4::UISessionFactory uiFactory = geant4::BuildUISessionFactory();
+  UISessionFactory uiFactory = BuildUISessionFactory();
   G4UIsession* ui = uiFactory.CreateProduct("qt",argc,argv);
 
   if(!ui) {
