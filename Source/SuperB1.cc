@@ -49,6 +49,9 @@
 
 #include "Randomize.hh"
 
+// - Boost
+#include "boost/shared_ptr.hpp"
+
 // This Project
 #include "B1DetectorConstruction.hh"
 #include "B1PrimaryGeneratorAction.hh"
@@ -70,7 +73,7 @@ int main(int argc,char** argv) {
   // We prefer to create the session early so that all output goes
   // to the logging channel of the session
   UISessionFactory uiFactory = BuildUISessionFactory();
-  G4UIsession* ui = uiFactory.CreateProduct(sessionName,argc,argv);
+  boost::shared_ptr<G4UIsession> ui(uiFactory.CreateProduct(sessionName,argc,argv));
 
   if(!ui) {
     std::cerr << "[SuperB1::error] session \""<<sessionName<<"\" not recognized" 
@@ -82,7 +85,7 @@ int main(int argc,char** argv) {
   CLHEP::HepRandom::setTheEngine(new CLHEP::RanecuEngine);
   
   // - Construct the default run manager
-  G4RunManager* runManager = new G4RunManager;
+  boost::shared_ptr<G4RunManager> runManager(new G4RunManager);
 
   // - Set mandatory initialization classes
   // Detector construction
@@ -111,7 +114,7 @@ int main(int argc,char** argv) {
   
   // - Initialize visualization, if required, by default, make it quiet 
 #ifdef G4VIS_USE
-  G4VisManager* visManager = new G4VisExecutive();
+  boost::shared_ptr<G4VisManager> visManager(new G4VisExecutive());
   visManager->SetVerboseLevel(G4VisManager::quiet);
   visManager->Initialize();
 #endif
@@ -134,17 +137,7 @@ int main(int argc,char** argv) {
 #endif
     ui->SessionStart();
   }
- 
-  // - Job termination
-  // Free the store: user actions, physics_list and detector_description 
-  // are owned and deleted by the run manager, so they should not be 
-  // deleted in the main() program !
-#ifdef G4VIS_USE
-  delete visManager;
-#endif
-  delete runManager;
-  delete ui;
   
-  return 0;
+  return EXIT_SUCCESS;
 }
 

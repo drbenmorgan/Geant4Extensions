@@ -38,10 +38,17 @@ else()
 endif()
 
 #-----------------------------------------------------------------------
+# Find Boost
+#
+find_package(Boost 1.47 REQUIRED)
+
+#-----------------------------------------------------------------------
 # Set up Geant4 include directories and compile definitions
+# Set up Boost
 # Set up include directory for this project
 #
 include(${Geant4_USE_FILE})
+include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${PROJECT_SOURCE_DIR}/Source)
 
 #-----------------------------------------------------------------------
