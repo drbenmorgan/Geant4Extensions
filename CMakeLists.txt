@@ -60,6 +60,8 @@ set(SUPERB1_LIB_SOURCES
   Source/B1SteppingAction.cc
   Source/B1SteppingAction.hh
   Source/UISessionFactory.hh
+  Source/CommandLineParser.hh
+  Source/CommandLineParser.cc
   )
 
 #-----------------------------------------------------------------------

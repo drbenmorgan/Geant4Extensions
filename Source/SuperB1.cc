@@ -56,17 +56,24 @@
 #include "B1EventAction.hh"
 #include "B1SteppingAction.hh"
 #include "UISessionFactory.hh"
-
+#include "CommandLineParser.hh"
 
 int main(int argc,char** argv) {
+  // - Parse the command line args
+  CommandLineParser parser(argc,argv);
+  parser.parse();
+
+  // - Extract the information we need
+  std::string sessionName(parser.session_name());
+
   // - Create interactive session, hardcoded for now
   // We prefer to create the session early so that all output goes
   // to the logging channel of the session
   UISessionFactory uiFactory = BuildUISessionFactory();
-  G4UIsession* ui = uiFactory.CreateProduct("qt",argc,argv);
+  G4UIsession* ui = uiFactory.CreateProduct(sessionName,argc,argv);
 
   if(!ui) {
-    std::cerr << "[SuperB1::error] session \"qt\" not recognized" 
+    std::cerr << "[SuperB1::error] session \""<<sessionName<<"\" not recognized" 
               << std::endl;
     exit(EXIT_FAILURE);
   }
