@@ -76,7 +76,9 @@ int main(int argc,char** argv) {
   boost::shared_ptr<G4UIsession> ui(uiFactory.CreateProduct(sessionName,argc,argv));
 
   if(!ui) {
-    std::cerr << "[SuperB1::error] session \""<<sessionName<<"\" not recognized" 
+    std::cerr << "[SuperB1::error] session \""
+              << sessionName
+              << "\" not recognized" 
               << std::endl;
     exit(EXIT_FAILURE);
   }
@@ -122,22 +124,15 @@ int main(int argc,char** argv) {
   // - Get the pointer to the User Interface manager
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
 
-  if (argc!=1) {
-    // - We're in batch mode
-    G4String command = "/control/execute ";
-    G4String fileName = argv[1];
-    UImanager->ApplyCommand(command+fileName);
-  } else {
-    // - We're in interactive mode : configure our UI session depending
-    // on whether we have visualization active or not
+  // - We're in interactive mode : configure our UI session depending
+  // on whether we have visualization active or not
 #ifdef G4VIS_USE
-    UImanager->ApplyCommand("/control/execute Resources/init_vis.mac"); 
+  UImanager->ApplyCommand("/control/execute Resources/init_vis.mac"); 
 #else
-    UImanager->ApplyCommand("/control/execute Resources/init.mac"); 
+  UImanager->ApplyCommand("/control/execute Resources/init.mac"); 
 #endif
-    ui->SessionStart();
-  }
-  
+  ui->SessionStart();
+
   return EXIT_SUCCESS;
 }
 

@@ -40,7 +40,7 @@ endif()
 #-----------------------------------------------------------------------
 # Find Boost
 #
-find_package(Boost 1.47 REQUIRED)
+find_package(Boost 1.47 REQUIRED program_options)
 
 #-----------------------------------------------------------------------
 # Set up Geant4 include directories and compile definitions
@@ -75,7 +75,7 @@ set(SUPERB1_LIB_SOURCES
 # Add the executable, and link it to the Geant4 libraries
 #
 add_executable(SuperB1 Source/SuperB1.cc ${SUPERB1_LIB_SOURCES})
-target_link_libraries(SuperB1 ${Geant4_LIBRARIES})
+target_link_libraries(SuperB1 ${Geant4_LIBRARIES} ${Boost_LIBRARIES})
 
 #-----------------------------------------------------------------------
 # Copy all scripts to the a Resources directory in the build directory, 
