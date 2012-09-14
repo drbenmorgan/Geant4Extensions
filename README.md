@@ -68,6 +68,19 @@ Generators](http://cmake.org/cmake/help/v2.8.9/cmake.html#section_Generators) fo
 these tools using CMake. Note that available generators are platform and
 CMake version dependent!
 
+### Known Issues ###
+With Boost 1.50.0, you may see a warning with `program_options`:
+
+```shell
+In file included from /<boost_dir>/include/boost/program_options/options_description.hpp:12,
+                 from /<boost_dir>/include/boost/program_options.hpp:15,
+                 from /<src_dir>/SuperB1.git/Source/CommandLineParser.cc:20:
+/<boost_dir>/include/boost/program_options/errors.hpp:253: warning: unused parameter ‘option_name’
+```
+
+This appears to be Boost rather than SuperB1 related, but awaits checking
+against newer and older versions of Boost.
+
 ### Running SuperB1 in Interactive Mode ###
 You can get help on available command line options for `SuperB1` with
 the `-h` option:
