@@ -16,6 +16,8 @@ Requirements
 * CMake compatible build system (Make, Xcode, Visual Studio)
 * [Geant4](http://geant4.cern.ch) 9.5 or higher, with at least the Low 
 Energy Electromagnetic and Photon Evaporation data libraries available.
+* [Boost](http://www.boost.org) 1.47.0 or higher, with at least shared_ptr
+and program_options available.
 
 ### Optional ###
 * Geant4 9.5 or higher with [Qt4](http://qt.nokia.com/) support (to enable 
@@ -33,6 +35,13 @@ is located):
 $ mkdir SuperB1-build
 $ cd SuperB1-build
 $ cmake -DGeant4_DIR=/path/to/Geant4ConfigDir /your/sourcedir
+```
+
+If you have Boost installed in a location unknown to CMake, then you
+will have to add the `Boost_DIR` argument
+
+```shell
+$ cmake -DBoost_DIR=/path/to/boost-install -DGeant4_DIR=/path/to/Geant4ConfigDir /your/sourcedir
 ```
 
 If configuration completes without error, CMake will have generated a
@@ -60,14 +69,25 @@ these tools using CMake. Note that available generators are platform and
 CMake version dependent!
 
 ### Running SuperB1 in Interactive Mode ###
-Execute `SuperB1` in the 'interactive mode' with visualization:
+You can get help on available command line options for `SuperB1` with
+the `-h` option:
+
+```shell
+$ ./SuperB1 -h
+SuperB1 Options:
+  -h [ --help ]              print help message
+  -s [ --session ] arg (=qt) start interactive session
+```
+
+To execute `SuperB1` in interactive mode with visualization:
 
 ```shell
 $ ./SuperB1
 ```
 
-This will start up a terminal or GUI session as selected at build
-time. From the resultant prompt, you can type in commands to control
+This will start up the application with the default terminal or GUI 
+session (shown by the default argument to the `-s` argument).
+From the resultant prompt, you can type in commands to control
 the application, e.g. those from `run1.mac`, line by line:  
 
 ```
@@ -88,6 +108,8 @@ Idle> exit
 ```
 
 ### Running SuperB1 in Batch Mode ###
+* THIS DOES NOT WORK AT THE MOMENT...
+
 Execute `SuperB1` in 'batch' mode (i.e. without interaction) by passing 
 macro files to it via the command line:
 
@@ -181,16 +203,16 @@ for all events and erased at the beginning of the next run.
 
 User Interfaces
 ---------------
-The user command interface is set via the `G4UIExecutive` class
-in the the `main()` function in `SuperB1.cc` 
-The selection of the user command interface is then done automatically 
-according to the Geant4 configuration. The default command interface, 
+The user command interface is controlled by the `UISessionFactory` class
+in the the `main()` function in `SuperB1.cc`.
+This factory class returns an instance of G4UIsession determined by an
+input string, which in `SuperB1` is provided by a command line argument.
+The default command interface, 
 called `G4UIterminal`, is done via a standard `G4cin/G4cout`.
 On Unix based systems one can use a smarter command interface, `G4UItcsh`.
 When Geant4 is built with Qt4 support, a full GUI interface is available.
 
 By default, `SuperB1` is configured so that it will have support for
-all available interfaces supplied by the install of Geant4 is is linked 
+all available interfaces supplied by the install of Geant4 it is linked 
 to.
-
 
