@@ -17,7 +17,7 @@ add_test(CheckBashisms-geant4-config_install
   ${CHECKBASHISMS_EXECUTABLE} ${PROJECT_BINARY_DIR}/InstallTreeFiles/geant4-config)
 
 add_test(CheckBashisms-geant4_sh_install
-  ${CHECKBASHISMS_EXECUTABLE} ${PROJECT_BINARY_DIR}/InstallTreeFiles/geant.sh)
+  ${CHECKBASHISMS_EXECUTABLE} ${PROJECT_BINARY_DIR}/InstallTreeFiles/geant4.sh)
 
 #-----------------------------------------------------------------------
 # Check bashisms in Build tree files
@@ -26,7 +26,7 @@ add_test(CheckBashisms-geant4-config_build
   ${CHECKBASHISMS_EXECUTABLE} ${GEANT4_BUILD_BINDIR}/geant4-config)
 
 add_test(CheckBashisms-geant4_sh_build
-  ${CHECKBASHISMS_EXECUTABLE} ${GEANT4_BUILD_BINDIR}/geant.sh)
+  ${CHECKBASHISMS_EXECUTABLE} ${GEANT4_BUILD_BINDIR}/geant4.sh)
 
 #-----------------------------------------------------------------------
 # Check csh scripts can be sourced from other scripts
@@ -48,4 +48,9 @@ add_test(NAME TestCshSourceInScriptWithArgs
   COMMAND ${PROJECT_SOURCE_DIR}/tests/testSourceGeant4WithArg.csh)
 set_property(TEST TestCshSourceInScriptWithArgs 
   PROPERTY FAIL_REGULAR_EXPRESSION "^geant4\\.csh:ERROR: could not locate Geant4 installation")
+
+#-----------------------------------------------------------------------
+# Test the Geant4GMake system
+#
+configure_file(testGeant4GMake.gmk.in testGeant4GMake.gmk @ONLY)
 

@@ -1,0 +1,22 @@
+# - Test Makefile for Geant4GMake
+
+# - Generate the include path
+#   TODO: make this accessible from a geant4-config call
+include @PROJECT_BINARY_DIR@/InstallTreeFiles/Geant4GMake.gmk
+
+# - Phony targets
+.PHONY: print-config
+
+# - target to print configuration variable list:
+print_config:
+	@echo "$(G4GMAKE_CONFIGURATION_VARIABLES)"
+	@echo $(foreach v,$(G4GMAKE_CONFIGURATION_VARIABLES),$(v): $($v))
+
+# - target to print option variable list:
+print_options:
+	@echo "x$(G4GMAKE_OPTION_VARIABLES)x"
+	@echo $(foreach v,$(G4GMAKE_OPTION_VARIABLES),$(v): $($v))
+
+
+# - Include the targets file
+include $(G4GMAKE_TARGETS)

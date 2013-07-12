@@ -52,12 +52,15 @@ foreach(_d EXECPREFIX BINDIR LIBDIR GMAKEDIR)
 endforeach()
 
 #-----------------------------------------------------------------------
-# Find packages that Geant4 may use
+# Add options/Find packages that Geant4 may use
 # Not completely comprehensive - aim is simply to see how best to
-# export information on header and library paths from the CMake layer
-# to the Shell/Make toolchain interfaces
+# export information on available options, header and library paths from 
+# the CMake layer to the Shell/Make toolchain interfaces
 #
+option(GEANT4_USE_GDML "Build Geant4 with GDML Support" ON)
+
 find_package(Qt4)
+
 
 #-----------------------------------------------------------------------
 # General script configuration variables

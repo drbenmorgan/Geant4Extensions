@@ -7,37 +7,101 @@
 # This file is configured by Geant4's CMake system and SHOULD NOT BE EDITED
 #
 
+#          Copyright Ben Morgan <bmorgan.warwick@gmail.com> 2013
+# Distributed under the Boost Software License, Version 1.0.
+#    (See accompanying file LICENSE_1_0.txt or copy at
+#          http://www.boost.org/LICENSE_1_0.txt)
+
+#-----------------------------------------------------------------------
+# GEANT4GMAKE API
 #----------------------------------------------------------------------
-# Record inclusion
-#
+# API Constants
+#-----------------------------------------------------------------------
+# - Record inclusion
 override G4GMAKE_INCLUDED := 1
 
-#----------------------------------------------------------------------
-# Self locate ourselves
-#
+# - Self locate ourselves
 override G4GMAKE_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 
-#----------------------------------------------------------------------
-# Path to the Geant4GMake custom targets file
-#
+# - Path to the Geant4GMake custom targets file
 override G4GMAKE_TARGETS := $(G4GMAKE_DIR)/Geant4GMakeTargets.gmk
 
-#----------------------------------------------------------------------
-# API for Geant4GMake
-#
+# - List of valid values for an exported CMake variable to be false
+g4gmake_wrap_cmake_boolean = x$1x
+G4GMAKE_CMAKE_FALSE := xx $(foreach v,0 OFF NO FALSE N IGNORE NOTFOUND,$(call g4gmake_wrap_cmake_boolean,$v))
 
+#-----------------------------------------------------------------------
+# API Functions
+#-----------------------------------------------------------------------
 # g4gmake_config_variable : Define a fixed variable that is part of the
 #                           Geant4 configuration
 #
-define g4gmake_config_variable
+define __g4gmake_config_variable
 override $(1) := $(2)
 G4GMAKE_CONFIGURATION_VARIABLES += $(1)
 endef
 
-#----------------------------------------------------------------------
-# Configuration of this Geant4GMake instance - Configured by CMake
-#                                              DO NOT EDIT!
+g4gmake_config_variable = $(eval $(call __g4gmake_configuration_variable,$(1),$(2)))
+
+# g4gmake_option_variable : Define a fixed variable indicating availability
+#                           of a Geant4 optional component
 #
+define __myimpl
+override $(1) := 1
+G4GMAKE_OPTION_VARIABLES += $(1)
+endef
+
+g4gmake_option_variable = $(if $(findstring $(call g4gmake_wrap_cmake_boolean,$(2)),$(G4GMAKE_CMAKE_FALSE)),override $(1) :=,$(eval $(call __myimpl,$(1))))
+
+
+#-----------------------------------------------------------------------
+# Configuration of this Geant4GMake instance - Configured by CMake
+#----------------------------------------------------------------------- 
 # - System Settings and Paths
-$(eval $(call g4gmake_config_variable,G4SYSTEM,@GEANT4_SYSTEM@-@GEANT4_COMPILER@))
+$(call g4gmake_config_variable,G4SYSTEM,@GEANT4_SYSTEM@-@GEANT4_COMPILER@)
+$(call g4gmake_config_variable,G4INSTALL,@GEANT4_INSTALL@)
+$(call g4gmake_config_variable,G4INCLUDE,@GEANT4_INCLUDE@)
+$(call g4gmake_config_variable,G4LIB,@GEANT4_LIB@)
+
+# - Default Data paths
+
+# - Default G4WORKDIR
+
+# - Library build settings
+
+#-----------------------------------------------------------------------
+# - Optional component availability/configuration
+#-----------------------------------------------------------------------
+# CLHEP
+
+# ZLIB
+
+# GDML
+$(call g4gmake_option_variable,G4LIB_BUILD_GDML,@GEANT4_USE_GDML@)
+
+# G3ToG4
+
+#-----------------------------------------------------------------------
+# - User Interface and Visualization Modules
+#-----------------------------------------------------------------------
+# - Terminal UI
+
+# - Qt UI/Vis
+$(call g4gmake_option_variable,G4UI_HAS_QT,@Qt4_FOUND@)
+
+# - Xm UI/Vis
+
+# - Network DAWN
+
+# - Network VRML
+
+# - OpenInventor
+
+# - X11 OpenGL
+
+# - Win32 OpenGL
+
+# - X11 Raytracer
+
+
 
