@@ -9,13 +9,11 @@ include @PROJECT_BINARY_DIR@/InstallTreeFiles/Geant4GMake.gmk
 
 # - target to print configuration variable list:
 print_config:
-	@echo "$(G4GMAKE_CONFIGURATION_VARIABLES)"
-	@echo $(foreach v,$(G4GMAKE_CONFIGURATION_VARIABLES),$(v): $($v))
+	@echo x$(G4GMAKE_CONFIG_VARIABLES)x
 
 # - target to print option variable list:
 print_options:
-	@echo "x$(G4GMAKE_OPTION_VARIABLES)x"
-	@echo $(foreach v,$(G4GMAKE_OPTION_VARIABLES),$(v): $($v))
+	@echo x$(G4GMAKE_OPTION_VARIABLES)x
 
 # - target to print version number
 print_version:

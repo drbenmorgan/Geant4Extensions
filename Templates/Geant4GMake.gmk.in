@@ -18,7 +18,6 @@
 # API Constants
 #-----------------------------------------------------------------------
 # - Geant4 Version
-override G4VERSION := @Geant4_VERSION@
 
 # - Record inclusion
 override G4GMAKE_INCLUDED := 1
@@ -41,7 +40,7 @@ G4GMAKE_CMAKE_FALSE := xx $(foreach v,0 OFF NO FALSE N IGNORE NOTFOUND,$(call g4
 #
 define __g4gmake_config_variable
 override $(1) := $(2)
-G4GMAKE_CONFIGURATION_VARIABLES += $(1)
+G4GMAKE_CONFIG_VARIABLES += $(1)
 endef
 
 g4gmake_config_variable = $(eval $(call __g4gmake_config_variable,$(1),$(2)))
@@ -56,11 +55,11 @@ endef
 
 g4gmake_option_variable = $(if $(findstring $(call g4gmake_wrap_cmake_boolean,$(2)),$(G4GMAKE_CMAKE_FALSE)),override $(1) :=,$(eval $(call __g4gmake_option_variable,$(1))))
 
-
 #-----------------------------------------------------------------------
 # Configuration of this Geant4GMake instance - Configured by CMake
 #----------------------------------------------------------------------- 
 # - System Settings and Paths
+$(call g4gmake_config_variable,G4VERSION,@Geant4_VERSION@)
 $(call g4gmake_config_variable,G4SYSTEM,@GEANT4_SYSTEM@-@GEANT4_COMPILER@)
 $(call g4gmake_config_variable,G4INSTALL,@GEANT4_INSTALL@)
 $(call g4gmake_config_variable,G4INCLUDE,@GEANT4_INCLUDE@)
