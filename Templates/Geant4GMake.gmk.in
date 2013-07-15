@@ -44,7 +44,7 @@ override $(1) := $(2)
 G4GMAKE_CONFIGURATION_VARIABLES += $(1)
 endef
 
-g4gmake_config_variable = $(eval $(call __g4gmake_configuration_variable,$(1),$(2)))
+g4gmake_config_variable = $(eval $(call __g4gmake_config_variable,$(1),$(2)))
 
 # g4gmake_option_variable : Define a fixed variable indicating availability
 #                           of a Geant4 optional component
