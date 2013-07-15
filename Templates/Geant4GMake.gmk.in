@@ -49,12 +49,12 @@ g4gmake_config_variable = $(eval $(call __g4gmake_config_variable,$(1),$(2)))
 # g4gmake_option_variable : Define a fixed variable indicating availability
 #                           of a Geant4 optional component
 #
-define __myimpl
+define __g4gmake_option_variable
 override $(1) := 1
 G4GMAKE_OPTION_VARIABLES += $(1)
 endef
 
-g4gmake_option_variable = $(if $(findstring $(call g4gmake_wrap_cmake_boolean,$(2)),$(G4GMAKE_CMAKE_FALSE)),override $(1) :=,$(eval $(call __myimpl,$(1))))
+g4gmake_option_variable = $(if $(findstring $(call g4gmake_wrap_cmake_boolean,$(2)),$(G4GMAKE_CMAKE_FALSE)),override $(1) :=,$(eval $(call __g4gmake_option_variable,$(1))))
 
 
 #-----------------------------------------------------------------------
