@@ -17,6 +17,9 @@
 #----------------------------------------------------------------------
 # API Constants
 #-----------------------------------------------------------------------
+# - Geant4 Version
+override G4VERSION := @Geant4_VERSION@
+
 # - Record inclusion
 override G4GMAKE_INCLUDED := 1
 

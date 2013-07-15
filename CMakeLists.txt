@@ -8,6 +8,12 @@ cmake_minimum_required(VERSION 2.6.4 FATAL_ERROR)
 project(Geant4DevelopmentTools)
 
 #-----------------------------------------------------------------------
+# Version number
+#
+set(Geant4_VERSION "10.0.0")
+
+
+#-----------------------------------------------------------------------
 # System/Compiler detection
 # This is to give us the correct "G4SYSTEM = OS-COMPILER" combination
 # for the old toolchain.
