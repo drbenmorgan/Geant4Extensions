@@ -15,17 +15,23 @@
 ifdef G4GMAKE_INCLUDED
 .PHONY : geant4_help geant4_config geant4_options
 
-geant4_help: geant4_config geant4_options
+geant4_help: geant4_config geant4_options geant4_datasets
 
 geant4_config:
 	@echo "Geant4 Configuration"
 	@echo "===================="
+	@echo G4GMAKE_DIR : $(G4GMAKE_DIR)
 	@$(foreach v,$(G4GMAKE_CONFIG_VARIABLES),echo $(v) : $($v);)
 
 geant4_options:
 	@echo "Geant4 Option Availability"
 	@echo "=========================="
 	@$(foreach v,$(G4GMAKE_OPTION_VARIABLES),echo $(v) : $($v);)
+
+geant4_datasets:
+	@echo "Geant4 Dataset Configuration"
+	@echo "============================"
+	@$(foreach v,$(G4GMAKE_DATASET_NAMES), echo "$(v)($(origin $(v))) : $($v)";)
 
 else
 $(info "-- [Geant4GMakeTargets.gmk] Geant4GMake.gmk not loaded, disabling custom targets")

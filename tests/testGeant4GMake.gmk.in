@@ -5,7 +5,7 @@
 include @PROJECT_BINARY_DIR@/InstallTreeFiles/Geant4GMake.gmk
 
 # - Phony targets
-.PHONY: print_config print_options print_version
+.PHONY: print_config print_options print_datasets print_version
 
 # - target to print configuration variable list:
 print_config:
@@ -14,6 +14,10 @@ print_config:
 # - target to print option variable list:
 print_options:
 	@echo x$(G4GMAKE_OPTION_VARIABLES)x
+
+# - target to print dataset names:
+print_datasets:
+	@echo x$(G4GMAKE_DATASET_NAMES)x
 
 # - target to print version number
 print_version:

@@ -55,6 +55,16 @@ endef
 
 g4gmake_option_variable = $(if $(findstring $(call g4gmake_wrap_cmake_boolean,$(2)),$(G4GMAKE_CMAKE_FALSE)),override $(1) :=,$(eval $(call __g4gmake_option_variable,$(1))))
 
+# g4gmake_define_dataset : Define a dataset variable and its default path,
+#                          but only if not set
+#                         
+define __g4gmake_define_dataset
+override $(1) := $(2)
+G4GMAKE_DATASET_NAMES += $(1)
+endef
+
+g4gmake_define_dataset = $(if $(value $(1)),$(eval G4GMAKE_DATASET_NAMES += $(1)),$(eval $(call __g4gmake_define_dataset,$(1),$(2))))
+
 #-----------------------------------------------------------------------
 # Configuration of this Geant4GMake instance - Configured by CMake
 #----------------------------------------------------------------------- 
@@ -66,6 +76,8 @@ $(call g4gmake_config_variable,G4INCLUDE,@GEANT4_INCLUDE@)
 $(call g4gmake_config_variable,G4LIB,@GEANT4_LIB@)
 
 # - Default Data paths
+# Checking for definition is best
+$(call g4gmake_define_dataset,G4LEDATA,bar)
 
 # - Default G4WORKDIR
 
