@@ -35,6 +35,10 @@ G4GMAKE_CMAKE_FALSE := xx $(foreach v,0 OFF NO FALSE N IGNORE NOTFOUND,$(call g4
 #-----------------------------------------------------------------------
 # API Functions
 #-----------------------------------------------------------------------
+# g4gmake_bool_asstring : Replace a make boolean with a string
+#
+g4gmake_bool_asstring = $(if $(value $(1)),$(2),$(3))
+
 # g4gmake_config_variable : Define a fixed variable that is part of the
 #                           Geant4 configuration
 #
@@ -53,7 +57,7 @@ override $(1) := 1
 G4GMAKE_OPTION_VARIABLES += $(1)
 endef
 
-g4gmake_option_variable = $(if $(findstring $(call g4gmake_wrap_cmake_boolean,$(2)),$(G4GMAKE_CMAKE_FALSE)),override $(1) :=,$(eval $(call __g4gmake_option_variable,$(1))))
+g4gmake_option_variable = $(if $(findstring $(call g4gmake_wrap_cmake_boolean,$(2)),$(G4GMAKE_CMAKE_FALSE)),$(eval override $(1) := ),$(eval $(call __g4gmake_option_variable,$(1))))
 
 # g4gmake_define_dataset : Define a dataset variable and its default path,
 #                          but only if not set
@@ -86,6 +90,9 @@ $(call g4gmake_define_dataset,G4LEDATA,bar)
 #-----------------------------------------------------------------------
 # - Optional component availability/configuration
 #-----------------------------------------------------------------------
+# Multithreading
+$(call g4gmake_option_variable,G4MULTITHREADED,@GEANT4_BUILD_MULTITHREADED@)
+
 # CLHEP
 
 # ZLIB
