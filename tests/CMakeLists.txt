@@ -52,5 +52,25 @@ set_property(TEST TestCshSourceInScriptWithArgs
 #-----------------------------------------------------------------------
 # Test the Geant4GMake system
 #
+# simple usage
 configure_file(testGeant4GMake.gmk.in testGeant4GMake.gmk @ONLY)
+add_test(NAME Geant4GMakeUsage
+  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+  COMMAND ${CMAKE_MAKE_PROGRAM} -f tests/testGeant4GMake.gmk
+  )
+
+# fail on repeated inclusion
+configure_file(testGeant4GMakeMultipleInclusion.gmk.in testGeant4GMakeMultipleInclusion.gmk @ONLY)
+add_test(NAME Geant4GMakeMultipleInclusion-All
+  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+  COMMAND ${CMAKE_MAKE_PROGRAM} -f tests/testGeant4GMakeMultipleInclusion.gmk
+  )
+set_property(TEST Geant4GMakeMultipleInclusion-All PROPERTY WILL_FAIL ON)
+
+add_test(NAME Geant4GMakeMultipleInclusion-Target
+  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+  COMMAND ${CMAKE_MAKE_PROGRAM} -f tests/testGeant4GMakeMultipleInclusion.gmk print_config
+  )
+set_property(TEST Geant4GMakeMultipleInclusion-Target PROPERTY WILL_FAIL ON)
+
 

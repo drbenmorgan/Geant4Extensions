@@ -19,7 +19,8 @@
 #-----------------------------------------------------------------------
 # - Geant4 Version
 
-# - Record inclusion
+# - Record inclusion, preventing multiple inclusion
+$(if $(G4GMAKE_INCLUDED),$(error "Geant4GMake.gmk included twice"),)
 override G4GMAKE_INCLUDED := 1
 
 # - Self locate ourselves
