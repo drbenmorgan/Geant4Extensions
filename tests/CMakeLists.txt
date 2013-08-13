@@ -73,4 +73,6 @@ add_test(NAME Geant4GMakeMultipleInclusion-Target
   )
 set_property(TEST Geant4GMakeMultipleInclusion-Target PROPERTY WILL_FAIL ON)
 
+# Datasets
+configure_file(testGeant4GMakeDataset.gmk.in testGeant4GMakeDataset.gmk @ONLY)
 

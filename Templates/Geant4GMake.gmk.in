@@ -42,6 +42,12 @@ G4GMAKE_CMAKE_FALSE := xx $(foreach v,0 OFF NO FALSE N IGNORE NOTFOUND,$(call g4
 g4gmake_bool_asstring = $(if $(value $(1)),$(2),$(3))
 
 #-----------------------------------------------------------------------
+# g4gmake_check_dir : Return a non-empty value if supplied directory
+#                     exists
+#
+g4gmake_check_dir = $(shell test -d $(1) && echo 1)
+
+#-----------------------------------------------------------------------
 # g4gmake_config_variable : Define a fixed variable that is part of the
 #                           Geant4 configuration
 #
@@ -76,6 +82,24 @@ endef
 g4gmake_define_dataset = $(if $(value $(1)),$(eval G4GMAKE_DATASET_NAMES += $(1)),$(eval $(call __g4gmake_define_dataset,$(1),$(2))))
 
 #-----------------------------------------------------------------------
+# g4gmake_check_dataset : Check that a given dataset exists.
+#                         Note that this only checks that the
+#                         dataset is defined and that the directory
+#                         listed for it exists. No checking of version
+#                         is performed.
+#
+__g4gmake_check_dataset = $(if $(call g4gmake_check_dir,$($(1))), \
+													$(info - Geant4 dataset $(1) found : $($(1))), \
+													$(error - Geant4 dataset $(1) not found (expected at : $($(1)))))
+
+g4gmake_check_dataset = $(if $(findstring $(1),$(G4GMAKE_DATASET_NAMES)), \
+												$(call __g4gmake_check_dataset,$(1)), \
+												$(error unknown dataset "$(1)"))
+
+g4gmake_check_datasets = $(foreach d,$(G4GMAKE_DATASET_NAMES), \
+												 $(call g4gmake_check_dataset,$(d)))
+
+#-----------------------------------------------------------------------
 # Configuration of this Geant4GMake instance - Configured by CMake
 #----------------------------------------------------------------------- 
 # - System Settings and Paths
@@ -87,7 +111,7 @@ $(call g4gmake_config_variable,G4LIB,@GEANT4_LIB@)
 
 # - Default Data paths
 # Checking for definition is best
-$(call g4gmake_define_dataset,G4LEDATA,bar)
+$(call g4gmake_define_dataset,G4LEDATA,/tmp)
 
 # - Default G4WORKDIR
 
