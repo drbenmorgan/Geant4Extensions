@@ -68,10 +68,17 @@ if(GEANT4_USE_SYSTEM_CLHEP)
   find_package(CLHEP REQUIRED)
 endif()
 
+option(GEANT4_USE_SYSTEM_EXPAT "Build Geant4 with system expat" ON)
+
+option(GEANT4_USE_SYSTEM_ZLIB "Build Geant4 with system zlib" ON)
+
 option(GEANT4_USE_GDML "Build Geant4 with GDML Support" ON)
 
 find_package(Qt4)
 
+# - DATA
+# NB - make has issues with paths containing spaces
+set(GEANT4_DATASET_DESCRIPTIONS "G4NDL|G4NEUTRONHPDATA|/foo/bar;G4EMLOW|G4LEDATA|/frob/baz")
 
 #-----------------------------------------------------------------------
 # General script configuration variables

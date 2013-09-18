@@ -1,17 +1,11 @@
 # - Test Makefile for Geant4GMake dataset checks
 
+all : geant4_help_datasets
+
 # - Generate the include path
 #   TODO: make this accessible from a geant4-config call
 include @PROJECT_BINARY_DIR@/InstallTreeFiles/Geant4GMake.gmk
 
-# - check known dataset
-$(call g4gmake_check_dataset,G4LEDATA)
-
-# - check all known
-$(call g4gmake_check_datasets)
-
-# - check unknown dataset
-$(call g4gmake_check_dataset,G4PHONYDATA)
-
 # - Include the targets file
 include $(G4GMAKE_TARGETS)
+

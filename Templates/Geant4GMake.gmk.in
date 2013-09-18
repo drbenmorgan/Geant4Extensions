@@ -12,7 +12,6 @@
 #    (See accompanying file LICENSE_1_0.txt or copy at
 #          http://www.boost.org/LICENSE_1_0.txt)
 
-#-----------------------------------------------------------------------
 # GEANT4GMAKE API
 #----------------------------------------------------------------------
 # API Constants
@@ -74,34 +73,33 @@ endef
 g4gmake_option_variable = $(if $(call g4gmake_cmake_bool,$(1)),$(eval override $(1) := ),$(eval $(call __g4gmake_option_variable,$(1))))
 
 #-----------------------------------------------------------------------
-# g4gmake_define_dataset : Define a dataset variable and its default path,
-#                          but only if not set so that environment can
-#                          override
-#                         
-define __g4gmake_define_dataset
-override $(1) := $(2)
-G4GMAKE_DATASET_NAMES += $(1)
+# Dataset API
+#-----------------------------------------------------------------------
+# This gives us "ANAME|AENVVAR|APATH:BNAME|BENVVAR|BPATH:..."
+# Want to process to list of dataset names:
+# G4DATASETS
+# Plus per dataset vars:
+# G4DATASET_NAME_ENVVAR, G4DATASET_NAME_PATH
+# NB: Don't interfere with environment
+# NB: It won't handle paths with spaces without special export and
+# handling
+__g4gmake_set_dataset_names = $(foreach entry,$(subst ;, ,$(1)),$(word 1, $(subst |, ,$(entry))))
+
+__g4gmake_set_dataset_envvar = override G4DATASET_$(word 1, $(subst |, ,$(1)))_ENVVAR := $(word 2, $(subst |, ,$(1)))
+
+__g4gmake_set_dataset_path = override G4DATASET_$(word 1, $(subst |, ,$(1)))_PATH := $(word 3, $(subst |, ,$(1)))
+
+define __g4gmake_process_datasets
+override G4DATASETS := $(call __g4gmake_set_dataset_names,$(1))
+$(foreach entry,\
+	        $(subst ;, ,$(1)),\
+					$(eval $(call __g4gmake_set_dataset_envvar,$(entry))))
+$(foreach entry,\
+	        $(subst ;, ,$(1)),\
+					$(eval $(call __g4gmake_set_dataset_path,$(entry))))
 endef
 
-g4gmake_define_dataset = $(if $(value $(1)),$(eval G4GMAKE_DATASET_NAMES += $(1)),$(eval $(call __g4gmake_define_dataset,$(1),$(2))))
-
-#-----------------------------------------------------------------------
-# g4gmake_check_dataset : Check that a given dataset exists.
-#                         Note that this only checks that the
-#                         dataset is defined and that the directory
-#                         listed for it exists. No checking of version
-#                         is performed.
-#
-__g4gmake_check_dataset = $(if $(call g4gmake_check_dir,$($(1))), \
-													$(info - Geant4 dataset $(1) found : $($(1))), \
-													$(error - Geant4 dataset $(1) not found (expected at : $($(1)))))
-
-g4gmake_check_dataset = $(if $(findstring $(1),$(G4GMAKE_DATASET_NAMES)), \
-												$(call __g4gmake_check_dataset,$(1)), \
-												$(error unknown dataset "$(1)"))
-
-g4gmake_check_datasets = $(foreach d,$(G4GMAKE_DATASET_NAMES), \
-												 $(call g4gmake_check_dataset,$(d)))
+g4gmake_process_datasets = $(eval $(call __g4gmake_process_datasets,$(1)))
 
 #-----------------------------------------------------------------------
 # Configuration of this Geant4GMake instance - Configured by CMake
@@ -113,54 +111,39 @@ $(call g4gmake_config_variable,G4INSTALL,@GEANT4_INSTALL@)
 $(call g4gmake_config_variable,G4INCLUDE,@GEANT4_INCLUDE@)
 $(call g4gmake_config_variable,G4LIB,@GEANT4_LIB@)
 
-# - Default Data paths
-# Checking for definition is best
-$(call g4gmake_define_dataset,G4LEDATA,/tmp)
-
 # - Default G4WORKDIR - current working directory?
 ifndef G4WORKDIR
   G4WORKDIR := /tmp
 endif
 
-# - Library build settings
+# - Datasets
+$(call g4gmake_process_datasets,@GEANT4_DATASET_DESCRIPTIONS@)
 
-# - System/Internal library configuration
-# LOGIC:
-# In GNUmake 'G4LIB_USE_XXX' means use the G4XXX library
-# We have to have a separate variable because Geant4Make relies on
-# definition rather than value
+# - Library build settings
 # CLHEP
-override G4LIB_SYSTEM_CLHEP := $(call g4gmake_cmake_bool,@GEANT4_USE_SYSTEM_CLHEP@)
-ifeq ($(G4LIB_SYSTEM_CLHEP),)
+override G4LIB_USE_CLHEP := $(call g4gmake_cmake_bool,@GEANT4_USE_SYSTEM_CLHEP@)
+ifdef G4LIB_USE_CLHEP
   $(info -- Geant4 uses internal clhep)
-  override G4LIB_USE_CLHEP := 1
 else
   $(info -- Geant4 uses system clhep)
-	# NB: LIBDIR will need determining inside CMake because system CLHEP 
-	# probably uses an imported target...
-  undefine G4LIB_USE_CLHEP
   override CLHEP_INCLUDE_DIR := @CLHEP_INCLUDE_DIR@
   override CLHEP_LIBDIR := $(dir @CLHEP_LIBRARY@) 
 endif
 
 # EXPAT
-override G4LIB_SYSTEM_EXPAT := $(call g4gmake_cmake_bool,@GEANT4_USE_SYSTEM_EXPAT@)
-ifeq ($(G4LIB_SYSTEM_EXPAT),)
+override G4LIB_USE_EXPAT := $(call g4gmake_cmake_bool,@GEANT4_USE_SYSTEM_EXPAT@)
+ifdef G4LIB_USE_EXPAT
   $(info -- Geant4 uses internal expat)
-  override G4LIB_USE_EXPAT := 1
 else
   $(info -- Geant4 uses system expat)
-  undefine G4LIB_USE_EXPAT
 endif
 
 # ZLIB
-override G4LIB_SYSTEM_ZLIB := $(call g4gmake_cmake_bool,@GEANT4_USE_SYSTEM_ZLIB@)
-ifeq ($(G4LIB_SYSTEM_ZLIB),)
+override G4LIB_USE_ZLIB := $(call g4gmake_cmake_bool,@GEANT4_USE_SYSTEM_ZLIB@)
+ifdef G4LIB_USE_ZLIB
   $(info -- Geant4 uses internal zlib)
-  override G4LIB_USE_ZLIB := 1
 else
   $(info -- Geant4 uses system zlib)
-  undefine G4LIB_USE_ZLIB
 endif
 
 #-----------------------------------------------------------------------
@@ -196,6 +179,4 @@ $(call g4gmake_option_variable,G4UI_HAS_QT,@Qt4_FOUND@)
 # - Win32 OpenGL
 
 # - X11 Raytracer
-
-
 
