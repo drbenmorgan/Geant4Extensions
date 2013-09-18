@@ -29,6 +29,7 @@ override G4GMAKE_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 override G4GMAKE_TARGETS := $(G4GMAKE_DIR)/Geant4GMakeTargets.gmk
 
 # - List of valid values for an exported CMake variable to be false
+#   NB, The '-NOTFOUND' suffix is handled in the actual function
 g4gmake_wrap_cmake_boolean = x$1x
 G4GMAKE_CMAKE_FALSE := xx $(foreach v,0 OFF NO FALSE N IGNORE NOTFOUND,$(call g4gmake_wrap_cmake_boolean,$v))
 
@@ -37,7 +38,9 @@ G4GMAKE_CMAKE_FALSE := xx $(foreach v,0 OFF NO FALSE N IGNORE NOTFOUND,$(call g4
 #-----------------------------------------------------------------------
 #-----------------------------------------------------------------------
 # g4gmake_cmake_true : Replace a cmake boolean with a gmake boolean
-g4gmake_cmake_bool = $(findstring $(call g4gmake_wrap_cmake_boolean,$(1)),$(G4GMAKE_CMAKE_FALSE))
+#                      NB: note slightly odd logic due to checking value
+#                      against known CMake 'false' values
+g4gmake_cmake_bool = $(if $(findstring $(call g4gmake_wrap_cmake_boolean,$(1)),$(G4GMAKE_CMAKE_FALSE))$(findstring -NOTFOUND,$(1)),,1)
 
 #-----------------------------------------------------------------------
 # g4gmake_bool_asstring : Replace a make boolean with a string
@@ -70,7 +73,9 @@ override $(1) := 1
 G4GMAKE_OPTION_VARIABLES += $(1)
 endef
 
-g4gmake_option_variable = $(if $(call g4gmake_cmake_bool,$(1)),$(eval override $(1) := ),$(eval $(call __g4gmake_option_variable,$(1))))
+g4gmake_option_variable = $(if $(call g4gmake_cmake_bool,$(2)),\
+                          $(eval $(call __g4gmake_option_variable,$(1))),\
+                          $(eval override $(1) := ))
 
 #-----------------------------------------------------------------------
 # Dataset API
@@ -127,7 +132,7 @@ ifdef G4LIB_USE_CLHEP
 else
   $(info -- Geant4 uses system clhep)
   override CLHEP_INCLUDE_DIR := @CLHEP_INCLUDE_DIR@
-  override CLHEP_LIBDIR := $(dir @CLHEP_LIBRARY@) 
+  override CLHEP_LIBDIR := @CLHEP_LIBDIR@ 
 endif
 
 # EXPAT
@@ -148,6 +153,8 @@ endif
 
 #-----------------------------------------------------------------------
 # - Optional component availability/configuration
+# - Option variable names should ideally match to the G4GMake variables
+#   for ease of use. Need to watch for availability vs activation
 #-----------------------------------------------------------------------
 # Multithreading
 $(call g4gmake_option_variable,G4MULTITHREADED,@GEANT4_BUILD_MULTITHREADED@)
@@ -165,6 +172,12 @@ $(call g4gmake_option_variable,G4LIB_BUILD_G3TOG4,@GEANT4_USE_G3TOG4@)
 
 # - Qt UI/Vis
 $(call g4gmake_option_variable,G4UI_HAS_QT,@Qt4_FOUND@)
+ifdef G4UI_HAS_QT
+	# Will have to worry about Frameworks on Mac
+	override QTMOC := @QT_MOC_EXECUTABLE@
+  override QTFLAGS := -IA -IB etc
+  override QTLIBPATH := -Lwhere libs were found
+endif
 
 # - Xm UI/Vis
 
@@ -175,8 +188,15 @@ $(call g4gmake_option_variable,G4UI_HAS_QT,@Qt4_FOUND@)
 # - OpenInventor
 
 # - X11 OpenGL
+$(call g4gmake_option_variable,G4UI_HAS_OGL,@something@)
+ifdef G4UI_HAS_OGL
+  # Frameworks on mac again
+  override OGLFLAGS := -I@OPENGL_INCLUDE_DIR@
+  override OGLLIBS := -Lsome libpath
+endif
 
 # - Win32 OpenGL
+# Don't care, won't support Windows
 
 # - X11 Raytracer
 

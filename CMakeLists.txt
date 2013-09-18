@@ -12,7 +12,6 @@ project(Geant4DevelopmentTools)
 #
 set(Geant4_VERSION "10.0.0")
 
-
 #-----------------------------------------------------------------------
 # System/Compiler detection
 # This is to give us the correct "G4SYSTEM = OS-COMPILER" combination
@@ -66,6 +65,19 @@ endforeach()
 option(GEANT4_USE_SYSTEM_CLHEP "Build Geant4 with system CLHEP" OFF)
 if(GEANT4_USE_SYSTEM_CLHEP)
   find_package(CLHEP REQUIRED)
+  message(STATUS ${CLHEP_INCLUDE_DIR})
+  get_filename_component(CLHEP_INCLUDE_DIR ${CLHEP_INCLUDE_DIR} ABSOLUTE)
+  if(TARGET ${CLHEP_LIBRARIES})
+    # Problem - which config (Release, etc) to select? Especially if we
+    # build on a multiconfig generator...
+    # take release for now, though can extract all via the 
+    # IMPORTED_CONFIGURATIONS property
+    get_target_property(CLHEP_LIBDIR ${CLHEP_LIBRARIES} IMPORTED_LOCATION_RELEASE)
+    get_filename_component(CLHEP_LIBDIR ${CLHEP_LIBDIR} PATH)
+  endif()
+
+  message(STATUS ${CLHEP_INCLUDE_DIR})
+  message(STATUS ${CLHEP_LIBDIR})
 endif()
 
 option(GEANT4_USE_SYSTEM_EXPAT "Build Geant4 with system expat" ON)
