@@ -37,6 +37,10 @@ G4GMAKE_CMAKE_FALSE := xx $(foreach v,0 OFF NO FALSE N IGNORE NOTFOUND,$(call g4
 # API Functions
 #-----------------------------------------------------------------------
 #-----------------------------------------------------------------------
+# g4gmake_cmake_true : Replace a cmake boolean with a gmake boolean
+g4gmake_cmake_bool = $(findstring $(call g4gmake_wrap_cmake_boolean,$(1)),$(G4GMAKE_CMAKE_FALSE))
+
+#-----------------------------------------------------------------------
 # g4gmake_bool_asstring : Replace a make boolean with a string
 #
 g4gmake_bool_asstring = $(if $(value $(1)),$(2),$(3))
@@ -67,7 +71,7 @@ override $(1) := 1
 G4GMAKE_OPTION_VARIABLES += $(1)
 endef
 
-g4gmake_option_variable = $(if $(findstring $(call g4gmake_wrap_cmake_boolean,$(2)),$(G4GMAKE_CMAKE_FALSE)),$(eval override $(1) := ),$(eval $(call __g4gmake_option_variable,$(1))))
+g4gmake_option_variable = $(if $(call g4gmake_cmake_bool,$(1)),$(eval override $(1) := ),$(eval $(call __g4gmake_option_variable,$(1))))
 
 #-----------------------------------------------------------------------
 # g4gmake_define_dataset : Define a dataset variable and its default path,
@@ -113,9 +117,51 @@ $(call g4gmake_config_variable,G4LIB,@GEANT4_LIB@)
 # Checking for definition is best
 $(call g4gmake_define_dataset,G4LEDATA,/tmp)
 
-# - Default G4WORKDIR
+# - Default G4WORKDIR - current working directory?
+ifndef G4WORKDIR
+  G4WORKDIR := /tmp
+endif
 
 # - Library build settings
+
+# - System/Internal library configuration
+# LOGIC:
+# In GNUmake 'G4LIB_USE_XXX' means use the G4XXX library
+# We have to have a separate variable because Geant4Make relies on
+# definition rather than value
+# CLHEP
+override G4LIB_SYSTEM_CLHEP := $(call g4gmake_cmake_bool,@GEANT4_USE_SYSTEM_CLHEP@)
+ifeq ($(G4LIB_SYSTEM_CLHEP),)
+  $(info -- Geant4 uses internal clhep)
+  override G4LIB_USE_CLHEP := 1
+else
+  $(info -- Geant4 uses system clhep)
+	# NB: LIBDIR will need determining inside CMake because system CLHEP 
+	# probably uses an imported target...
+  undefine G4LIB_USE_CLHEP
+  override CLHEP_INCLUDE_DIR := @CLHEP_INCLUDE_DIR@
+  override CLHEP_LIBDIR := $(dir @CLHEP_LIBRARY@) 
+endif
+
+# EXPAT
+override G4LIB_SYSTEM_EXPAT := $(call g4gmake_cmake_bool,@GEANT4_USE_SYSTEM_EXPAT@)
+ifeq ($(G4LIB_SYSTEM_EXPAT),)
+  $(info -- Geant4 uses internal expat)
+  override G4LIB_USE_EXPAT := 1
+else
+  $(info -- Geant4 uses system expat)
+  undefine G4LIB_USE_EXPAT
+endif
+
+# ZLIB
+override G4LIB_SYSTEM_ZLIB := $(call g4gmake_cmake_bool,@GEANT4_USE_SYSTEM_ZLIB@)
+ifeq ($(G4LIB_SYSTEM_ZLIB),)
+  $(info -- Geant4 uses internal zlib)
+  override G4LIB_USE_ZLIB := 1
+else
+  $(info -- Geant4 uses system zlib)
+  undefine G4LIB_USE_ZLIB
+endif
 
 #-----------------------------------------------------------------------
 # - Optional component availability/configuration
@@ -123,14 +169,11 @@ $(call g4gmake_define_dataset,G4LEDATA,/tmp)
 # Multithreading
 $(call g4gmake_option_variable,G4MULTITHREADED,@GEANT4_BUILD_MULTITHREADED@)
 
-# CLHEP
-
-# ZLIB
-
 # GDML
 $(call g4gmake_option_variable,G4LIB_BUILD_GDML,@GEANT4_USE_GDML@)
 
 # G3ToG4
+$(call g4gmake_option_variable,G4LIB_BUILD_G3TOG4,@GEANT4_USE_G3TOG4@)
 
 #-----------------------------------------------------------------------
 # - User Interface and Visualization Modules

@@ -63,6 +63,11 @@ endforeach()
 # export information on available options, header and library paths from 
 # the CMake layer to the Shell/Make toolchain interfaces
 #
+option(GEANT4_USE_SYSTEM_CLHEP "Build Geant4 with system CLHEP" OFF)
+if(GEANT4_USE_SYSTEM_CLHEP)
+  find_package(CLHEP REQUIRED)
+endif()
+
 option(GEANT4_USE_GDML "Build Geant4 with GDML Support" ON)
 
 find_package(Qt4)
