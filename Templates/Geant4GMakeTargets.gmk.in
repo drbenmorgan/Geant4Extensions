@@ -18,19 +18,22 @@ ifdef G4GMAKE_INCLUDED
 geant4_help: geant4_help_config geant4_help_options geant4_help_datasets
 
 geant4_help_config:
+	@echo "===================="
 	@echo "Geant4 Configuration"
 	@echo "===================="
 	@echo G4GMAKE_DIR : $(G4GMAKE_DIR)
 	@$(foreach v,$(G4GMAKE_CONFIG_VARIABLES),echo $(v) : $($v);)
 
 geant4_help_options:
+	@echo "=========================="
 	@echo "Geant4 Option Availability"
 	@echo "=========================="
-	@$(foreach v,$(G4GMAKE_OPTION_VARIABLES),echo $(v) : $($v);)
+	@$(foreach v,$(G4GMAKE_OPTION_VARIABLES),echo $(v) : $(call g4gmake_bool_asstring,$($v),yes,no);)
 
 geant4_help_datasets:
+	@echo "==================================="
 	@echo "Geant4 Dataset Configuration"
-	@echo "============================"
+	@echo "==================================="
 	@echo "NAME : (ENVIRONMENT VARIABLE, PATH)"
 	@echo "-----------------------------------"
 	@$(foreach v,$(G4DATASETS),\
