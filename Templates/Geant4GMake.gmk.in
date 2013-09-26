@@ -37,6 +37,12 @@ G4GMAKE_CMAKE_FALSE := xx $(foreach v,0 OFF NO FALSE N IGNORE NOTFOUND,$(call g4
 # API Functions
 #-----------------------------------------------------------------------
 #-----------------------------------------------------------------------
+# g4gmake_info : log a message to screen if CPPVERBOSE is set, otherwise
+#                do nothing
+#
+g4gmake_info = $(if $(CPPVERBOSE),$(info -- $(1)),)
+
+#-----------------------------------------------------------------------
 # g4gmake_cmake_true : Replace a cmake boolean with a gmake boolean
 #                      NB: note slightly odd logic due to checking value
 #                      against known CMake 'false' values
@@ -128,9 +134,9 @@ $(call g4gmake_process_datasets,@GEANT4_DATASET_DESCRIPTIONS@)
 # CLHEP
 override G4LIB_USE_CLHEP := $(call g4gmake_cmake_bool,@GEANT4_USE_SYSTEM_CLHEP@)
 ifdef G4LIB_USE_CLHEP
-  $(info -- Geant4 uses internal clhep)
+  $(call g4gmake_info,Geant4 uses internal clhep)
 else
-  $(info -- Geant4 uses system clhep)
+  $(call g4gmake_info,Geant4 uses system clhep)
   override CLHEP_INCLUDE_DIR := @CLHEP_INCLUDE_DIR@
   override CLHEP_LIBDIR := @CLHEP_LIBDIR@ 
 endif
@@ -138,17 +144,17 @@ endif
 # EXPAT
 override G4LIB_USE_EXPAT := $(call g4gmake_cmake_bool,@GEANT4_USE_SYSTEM_EXPAT@)
 ifdef G4LIB_USE_EXPAT
-  $(info -- Geant4 uses internal expat)
+  $(call g4gmake_info,Geant4 uses internal expat)
 else
-  $(info -- Geant4 uses system expat)
+  $(call g4gmake_info,Geant4 uses system expat)
 endif
 
 # ZLIB
 override G4LIB_USE_ZLIB := $(call g4gmake_cmake_bool,@GEANT4_USE_SYSTEM_ZLIB@)
 ifdef G4LIB_USE_ZLIB
-  $(info -- Geant4 uses internal zlib)
+  $(call g4gmake_info,Geant4 uses internal zlib)
 else
-  $(info -- Geant4 uses system zlib)
+  $(call g4gmake_info,Geant4 uses system zlib)
 endif
 
 #-----------------------------------------------------------------------
@@ -214,17 +220,19 @@ endif
 
 $(foreach o,$(G4GMAKE_OPTION_VARIABLES),\
 	$(if $(value $(subst HAS,USE,$(o))),\
-	  $(info -- $(o) asked for [$(origin  $(subst HAS,USE,$(o)))]),\
+	  $(call g4gmake_info,$(o) asked for [$(origin  $(subst HAS,USE,$(o)))]),\
 	  )\
 )
 
 $(foreach o,$(G4GMAKE_OPTION_VARIABLES),\
 	$(if $(value $(subst HAS,USE,$(o))),\
 	  $(if $(value $(o)),\
-		  $(info -- activating $(o)),\
+		  $(call g4gmake_info,activating $(o)),\
 		  $(error this install of Geant4 does not support $(o)),\
 	  )\
 	)\
 )
 
+# - handle special cases here, that is, where we don't have the USE/HAS
+#   translation, like G4MULTITHREADED
 
