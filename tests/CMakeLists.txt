@@ -34,19 +34,19 @@ add_test(CheckBashisms-geant4_sh_build
 add_test(NAME TestCshSourceInScriptFails
   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
   COMMAND ${PROJECT_SOURCE_DIR}/tests/testSourceGeant4.csh)
-set_property(TEST TestCshSourceInScriptFails 
+set_property(TEST TestCshSourceInScriptFails
   PROPERTY PASS_REGULAR_EXPRESSION "^geant4\\.csh:ERROR: could not locate Geant4 installation")
 
 add_test(NAME TestCshSourceInScriptInBinDir
   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
   COMMAND ${PROJECT_SOURCE_DIR}/tests/testSourceGeant4InDir.csh)
-set_property(TEST TestCshSourceInScriptInBinDir 
+set_property(TEST TestCshSourceInScriptInBinDir
   PROPERTY FAIL_REGULAR_EXPRESSION "^geant4\\.csh:ERROR: could not locate Geant4 installation")
 
 add_test(NAME TestCshSourceInScriptWithArgs
   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
   COMMAND ${PROJECT_SOURCE_DIR}/tests/testSourceGeant4WithArg.csh)
-set_property(TEST TestCshSourceInScriptWithArgs 
+set_property(TEST TestCshSourceInScriptWithArgs
   PROPERTY FAIL_REGULAR_EXPRESSION "^geant4\\.csh:ERROR: could not locate Geant4 installation")
 
 #-----------------------------------------------------------------------
@@ -75,4 +75,8 @@ set_property(TEST Geant4GMakeMultipleInclusion-Target PROPERTY WILL_FAIL ON)
 
 # Datasets
 configure_file(testGeant4GMakeDataset.gmk.in testGeant4GMakeDataset.gmk @ONLY)
+
+
+# Option Activation
+configure_file(testGeant4GMakeOptionActivation.gmk.in testGeant4GMakeOptionActivation.gmk @ONLY)
 

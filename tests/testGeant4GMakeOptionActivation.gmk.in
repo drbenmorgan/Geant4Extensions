@@ -1,0 +1,17 @@
+# - Test Makefile for Geant4GMake
+
+# set options
+CPPVERBOSE := 1
+
+# - Generate the include path
+#   TODO: make this accessible from a geant4-config call
+include @PROJECT_BINARY_DIR@/InstallTreeFiles/Geant4GMake.gmk
+
+# - Phony targets
+.PHONY: all
+
+all:
+	@echo "all o.k."
+
+include @PROJECT_BINARY_DIR@/InstallTreeFiles/Geant4GMakeTargets.gmk
+
