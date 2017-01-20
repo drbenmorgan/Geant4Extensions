@@ -89,14 +89,19 @@ g4gmake_option_variable = $(if $(call g4gmake_cmake_bool,$(2)),\
 #-----------------------------------------------------------------------
 # Dataset API
 #-----------------------------------------------------------------------
-# This gives us "ANAME|AENVVAR|APATH:BNAME|BENVVAR|BPATH:..."
-# Want to process to list of dataset names:
-# G4DATASETS
+# Configuration gives us "ANAME|AENVVAR|APATH:BNAME|BENVVAR|BPATH:..."
+# Want to extract a list of dataset names:
+#   G4DATASETS := ANAME BNAME
 # Plus per dataset vars:
-# G4DATASET_NAME_ENVVAR, G4DATASET_NAME_PATH
-# NB: Don't interfere with environment
-# NB: It won't handle paths with spaces without special export and
-# handling
+#  G4DATASET_ANAME_ENVVAR := ...
+#  G4DATASET_ANAME_PATH := ...
+#  G4DATASET_BNAME_PATH := ...
+# NB: Don't interfere with environment:
+#   1) Don't set environment
+#   2) ? If env var for dataset exists, use that and report source (use $(origin ...)?) ?
+# NB: Implementation does not handle paths with spaces
+# Special handling would be needed when configuring this file, e.g. replacing
+# spaces with special character(s).
 __g4gmake_set_dataset_names = $(foreach entry,$(subst ;, ,$(1)),$(word 1, $(subst |, ,$(entry))))
 
 __g4gmake_set_dataset_envvar = override G4DATASET_$(word 1, $(subst |, ,$(1)))_ENVVAR := $(word 2, $(subst |, ,$(1)))
@@ -116,6 +121,29 @@ endef
 g4gmake_process_datasets = $(eval $(call __g4gmake_process_datasets,$(1)))
 
 #-----------------------------------------------------------------------
+# g4gmake_check_dataset : Check that a given dataset exists.
+#                         Note that this only checks that the
+#                         dataset is defined and that the directory
+#                         listed for it exists. No checking of version
+#                         is performed.
+#
+__g4gmake_check_dataset = $(if $(call g4gmake_check_dir,$(G4DATASET_$(1)_PATH)), \
+                          $(info - Geant4 dataset $(1) found : $(G4DATASET_$(1)_PATH)), \
+                          $(error - Geant4 dataset $(1) not found (expected at : $(G4DATASET_$(1)_PATH))))
+
+g4gmake_check_dataset = $(if $(findstring $(1),$(G4DATASETS)), \
+                        $(call __g4gmake_check_dataset,$(1)), \
+                        $(error unknown dataset "$(1)"))
+
+#-----------------------------------------------------------------------
+# g4gmake_check_datasets : Check that directories listed for all defined
+#                          datasets exists.
+#
+g4gmake_check_datasets = $(foreach d,$(G4DATASETS), \
+                         $(call g4gmake_check_dataset,$(d)))
+
+
+#-----------------------------------------------------------------------
 # Configuration of this Geant4GMake instance - Configured by CMake
 #----------------------------------------------------------------------- 
 # - System Settings and Paths
@@ -132,6 +160,8 @@ endif
 
 # - Datasets
 $(call g4gmake_process_datasets,@GEANT4_DATASET_DESCRIPTIONS@)
+# TODO: Check datasets at make time?
+# $(call g4gmake_check_datasets)
 
 # - Library build settings
 # CLHEP

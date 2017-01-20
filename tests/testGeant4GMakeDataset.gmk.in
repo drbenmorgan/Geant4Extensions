@@ -1,4 +1,9 @@
 # - Test Makefile for Geant4GMake dataset checks
+# TODO: Define what tests are needed here if any.
+#       Datasets are more a runtime than build time
+#       operation, though we may wish to use the 
+#       values in the build (e.g. code in paths)
+#
 
 all : geant4_help_datasets
 
@@ -8,4 +13,6 @@ include @PROJECT_BINARY_DIR@/InstallTreeFiles/Geant4GMake.gmk
 
 # - Include the targets file
 include $(G4GMAKE_TARGETS)
+
+$(error TODO: DEFINE TESTS)
 

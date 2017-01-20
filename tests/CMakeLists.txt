@@ -47,8 +47,23 @@ set_property(TEST Geant4GMakeMultipleInclusion-Target PROPERTY WILL_FAIL ON)
 
 # Datasets
 configure_file(testGeant4GMakeDataset.gmk.in testGeant4GMakeDataset.gmk @ONLY)
-
+add_test(NAME Geant4GMakeDataset
+  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+  COMMAND ${CMAKE_MAKE_PROGRAM} -f tests/testGeant4GMakeDataset.gmk
+  )
 
 # Option Activation
 configure_file(testGeant4GMakeOptionActivation.gmk.in testGeant4GMakeOptionActivation.gmk @ONLY)
+add_test(NAME Geant4GMakeOptionActivation
+  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+  COMMAND ${CMAKE_MAKE_PROGRAM} -f tests/testGeant4GMakeOptionActivation.gmk
+  )
+
+# Actual Application
+configure_file(testGeant4GMakeExampleApplication.gmk.in testGeant4GMakeExampleApplication.gmk @ONLY)
+add_test(NAME Geant4GMakeExampleApplication
+  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+  COMMAND ${CMAKE_MAKE_PROGRAM} -f tests/testGeant4GMakeExampleApplication.gmk
+  )
+
 

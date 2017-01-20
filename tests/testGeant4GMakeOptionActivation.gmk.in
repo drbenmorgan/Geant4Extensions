@@ -1,4 +1,7 @@
 # - Test Makefile for Geant4GMake
+# TODO: DEFINE TESTS
+#       Need to confirm that options are activated
+#       and that non-supported options result in error
 
 # set options
 CPPVERBOSE := 1
@@ -14,4 +17,6 @@ all:
 	@echo "all o.k."
 
 include @PROJECT_BINARY_DIR@/InstallTreeFiles/Geant4GMakeTargets.gmk
+
+$(error TODO: DEFINE TESTS)
 
