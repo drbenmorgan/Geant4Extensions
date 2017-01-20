@@ -109,11 +109,7 @@ endif()
 # in place build if user requires.
 #
 set(BUILD_TREE_FILES
-  Templates/geant4.sh.in
-  Templates/geant4.csh.in
   Templates/geant4-config.in
-  Templates/geant4gmake.sh.in
-  Templates/geant4gmake.csh.in
   Templates/Geant4GMake.gmk.in
   Templates/Geant4GMakeTargets.gmk.in)
 
@@ -167,16 +163,12 @@ file(REMOVE_RECURSE ${GEANT4_BUILD_BINDIR}/.g4tmp)
 
 #-----------------------------------------------------------------------
 # Configure files for the INSTALL tree
-# Files : geant4.(c)sh, geant4make.(c)sh, geant4-config, Geant4Make.gmk
+# Files : geant4-config, Geant4Make.gmk
 # These allow applications to be built against the installed Geant4.
 # We put them in a special "InstallTreeFiles" directory to insulate them.
 #
 set(INSTALL_TREE_FILES
-  Templates/geant4.sh.in
-  Templates/geant4.csh.in
   Templates/geant4-config.in
-  Templates/geant4gmake.sh.in
-  Templates/geant4gmake.csh.in
   Templates/Geant4GMake.gmk.in
   Templates/Geant4GMakeTargets.gmk.in)
 
