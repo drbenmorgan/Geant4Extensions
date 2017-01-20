@@ -145,7 +145,10 @@ g4gmake_check_datasets = $(foreach d,$(G4DATASETS), \
 
 #-----------------------------------------------------------------------
 # Configuration of this Geant4GMake instance - Configured by CMake
-#----------------------------------------------------------------------- 
+#-----------------------------------------------------------------------
+# - Always warn that system is deprecated
+$(warning "Geant4GMake is deprecated, please migrate to CMake or pkg-config")
+
 # - System Settings and Paths
 $(call g4gmake_config_variable,G4VERSION,@Geant4_VERSION@)
 $(call g4gmake_config_variable,G4SYSTEM,@GEANT4_SYSTEM@-@GEANT4_COMPILER@)
