@@ -16,8 +16,6 @@
 #----------------------------------------------------------------------
 # API Constants
 #-----------------------------------------------------------------------
-# - Geant4 Version
-
 # - Record inclusion, preventing multiple inclusion
 $(if $(G4GMAKE_INCLUDED),$(error "Geant4GMake.gmk included twice"),)
 override G4GMAKE_INCLUDED := 1
@@ -32,6 +30,11 @@ override G4GMAKE_TARGETS := $(G4GMAKE_DIR)/Geant4GMakeTargets.gmk
 #   NB, The '-NOTFOUND' suffix is handled in the actual function
 g4gmake_wrap_cmake_boolean = x$1x
 G4GMAKE_CMAKE_FALSE := xx $(foreach v,0 OFF NO FALSE N IGNORE NOTFOUND,$(call g4gmake_wrap_cmake_boolean,$v))
+
+# - Translate VERBOSE <-> CPPVERBOSE
+ifdef VERBOSE
+	CPPVERBOSE :=1
+endif
 
 #-----------------------------------------------------------------------
 # API Functions
@@ -149,6 +152,15 @@ else
   $(call g4gmake_info,Geant4 uses system expat)
 endif
 
+# USolids
+override G4LIB_USE_USOLIDS := $(call g4gmake_cmake_bool,@GEANT4_USE_SYSTEM_USOLIDS@)
+ifdef G4LIB_USE_USOLIDS
+  $(call g4gmake_info,Geant4 uses internal USolids)
+else
+  $(call g4gmake_info,Geant4 uses system USolids)
+endif
+
+
 # ZLIB
 override G4LIB_USE_ZLIB := $(call g4gmake_cmake_bool,@GEANT4_USE_SYSTEM_ZLIB@)
 ifdef G4LIB_USE_ZLIB
@@ -177,6 +189,7 @@ $(call g4gmake_option_variable,G4LIB_HAS_G3TOG4,@GEANT4_USE_G3TOG4@)
 # - Terminal UI
 $(call g4gmake_option_variable,G4UI_HAS_TERMINAL,1)
 $(call g4gmake_option_variable,G4UI_HAS_TCSH,@UNIX@)
+$(call g4gmake_option_variable,G4UI_HAS_GAG,1)
 
 # - Qt UI/Vis
 $(call g4gmake_option_variable,G4UI_HAS_QT,@Qt4_FOUND@)
@@ -187,11 +200,16 @@ ifdef G4UI_HAS_QT
   override QTLIBPATH := -Lwhere libs were found
 endif
 
+# - Wt
+$(call g4gmake_option_variable,G4UI_HAS_WT,@WT_FOUND@)
+
 # - Xm UI/Vis
 
 # - Network DAWN
+$(call g4gmake_option_variable,G4VIS_HAS_DAWN,@@)
 
 # - Network VRML
+$(call g4gmake_option_variable,G4VIS_HAS_VRML,@@)
 
 # - OpenInventor
 
@@ -203,10 +221,8 @@ ifdef G4UI_HAS_OGL
   override OGLLIBS := -Lsome libpath
 endif
 
-# - Win32 OpenGL
-# Don't care, won't support Windows
-
 # - X11 Raytracer
+$(call g4gmake_option_variable,G4VIS_HAS_RAYTRACERX,@@)
 
 #-----------------------------------------------------------------------
 # Validate options against user supplied values
@@ -216,23 +232,25 @@ endif
 # them from XX_HAS_YY to XX_USE_YY, but will have special cases, so handle
 # them afterwards.
 
-
-
+# Enable everything if G4LIB_USE_ALL is specified
+__g4_set_has_to_use = override $(subst HAS,USE,$1) := 1
+ifdef G4LIB_USE_ALL
 $(foreach o,$(G4GMAKE_OPTION_VARIABLES),\
-	$(if $(value $(subst HAS,USE,$(o))),\
-	  $(call g4gmake_info,$(o) asked for [$(origin  $(subst HAS,USE,$(o)))]),\
-	  )\
-)
+  $(if $(value $(o)),$(eval $(call __g4_set_has_to_use,$(o))),))
+endif
 
 $(foreach o,$(G4GMAKE_OPTION_VARIABLES),\
 	$(if $(value $(subst HAS,USE,$(o))),\
 	  $(if $(value $(o)),\
-		  $(call g4gmake_info,activating $(o)),\
-		  $(error this install of Geant4 does not support $(o)),\
+		  $(call g4gmake_info,activating $(o) [asked for via $(origin $(subst HAS,USE,$(o)))]),\
+		  $(error this install of Geant4 does not support $(subst HAS,USE,$(o)) [asked for via $(origin $(subst HAS,USE,$(o)))]),\
 	  )\
 	)\
 )
 
 # - handle special cases here, that is, where we don't have the USE/HAS
-#   translation, like G4MULTITHREADED
-
+#   translation, like G4MULTITHREADED.
+#   By this point, any USE variables will have been validated
+ifdef G4LIB_USE_MULTITHREAD
+	override G4MULTITHREADED := 1
+endif

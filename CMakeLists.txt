@@ -4,13 +4,13 @@
 # Copyright 2012 Ben Morgan <bmorgan.warwick@gmail.com>
 # Copyright 2012 University of Warwick
 #
-cmake_minimum_required(VERSION 2.6.4 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
 project(Geant4DevelopmentTools)
 
 #-----------------------------------------------------------------------
 # Version number
 #
-set(Geant4_VERSION "10.0.0")
+set(Geant4_VERSION "10.3.0")
 
 #-----------------------------------------------------------------------
 # System/Compiler detection
@@ -31,7 +31,7 @@ endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX)
   set(GEANT4_COMPILER "g++")
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang|Clang")
   set(GEANT4_COMPILER "clang")
 elseif(MSVC)
   set(GEANT4_COMPILER "VC")
@@ -59,7 +59,7 @@ endforeach()
 #-----------------------------------------------------------------------
 # Add options/Find packages that Geant4 may use
 # Not completely comprehensive - aim is simply to see how best to
-# export information on available options, header and library paths from 
+# export information on available options, header and library paths from
 # the CMake layer to the Shell/Make toolchain interfaces
 #
 option(GEANT4_USE_SYSTEM_CLHEP "Build Geant4 with system CLHEP" OFF)
@@ -70,7 +70,7 @@ if(GEANT4_USE_SYSTEM_CLHEP)
   if(TARGET ${CLHEP_LIBRARIES})
     # Problem - which config (Release, etc) to select? Especially if we
     # build on a multiconfig generator...
-    # take release for now, though can extract all via the 
+    # take release for now, though can extract all via the
     # IMPORTED_CONFIGURATIONS property
     get_target_property(CLHEP_LIBDIR ${CLHEP_LIBRARIES} IMPORTED_LOCATION_RELEASE)
     get_filename_component(CLHEP_LIBDIR ${CLHEP_LIBDIR} PATH)
@@ -146,7 +146,7 @@ set(LOCAL_GEANT4CONFIG ${GEANT4_BUILD_BINDIR}/geant4-config)
 # - Copy the script to a temporary directory so we can change the perms
 file(COPY ${LOCAL_GEANT4CONFIG}
   DESTINATION ${GEANT4_BUILD_BINDIR}/.g4tmp
-  FILE_PERMISSIONS 
+  FILE_PERMISSIONS
     OWNER_READ OWNER_WRITE OWNER_EXECUTE
     GROUP_READ GROUP_EXECUTE
     WORLD_READ WORLD_EXECUTE)
@@ -192,10 +192,10 @@ file(RELATIVE_PATH GEANT4_GMAKEDIR_TO_LIBDIR ${CMAKE_INSTALL_FULL_GMAKEDIR} ${CM
 
 foreach(_template ${INSTALL_TREE_FILES})
   # Strip out the filename and prepend the output directory
-  string(REGEX REPLACE 
-    ".*/(.*)\\.in$" 
-    "${PROJECT_BINARY_DIR}/InstallTreeFiles/\\1" 
-    _outfile 
+  string(REGEX REPLACE
+    ".*/(.*)\\.in$"
+    "${PROJECT_BINARY_DIR}/InstallTreeFiles/\\1"
+    _outfile
     ${_template})
   configure_file(${_template} ${_outfile} @ONLY)
 endforeach()
