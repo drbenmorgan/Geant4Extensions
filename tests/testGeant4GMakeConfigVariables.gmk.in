@@ -1,0 +1,23 @@
+# - Test Makefile for Geant4GMake: Correct config variables
+# Must provide input variables to allow accurate comparison
+
+# - Generate the include path
+#   TODO: make this accessible from a geant4-config call
+include @PROJECT_BINARY_DIR@/InstallTreeFiles/Geant4GMake.gmk
+
+# - Phony all for completion
+.PHONY: all
+
+# Check that config vars do not result in incorrect definitions
+ifeq ($(GEANT4_BUILD_VERBOSE_CODE),)
+  ifndef G4_NO_VERBOSE 
+    $(error "G4_NO_VERBOSE is not defined but should be because GEANT4_VERBOSE_CODE = x$(GEANT4_BUILD_VERBOSE_CODE)x")
+  endif
+else
+  ifdef G4_NO_VERBOSE
+    $(error "G4_NO_VERBOSE is defined as x$(G4_NO_VERBOSE)x but should not be because GEANT4_BUILD_VERBOSE_CODE = x$(GEANT4_BUILD_VERBOSE_CODE)x")
+  endif
+endif
+
+all:
+	@echo "Test o.k."

@@ -31,7 +31,8 @@ override G4GMAKE_TARGETS := $(G4GMAKE_DIR)/Geant4GMakeTargets.gmk
 g4gmake_wrap_cmake_boolean = x$1x
 G4GMAKE_CMAKE_FALSE := xx $(foreach v,0 OFF NO FALSE N IGNORE NOTFOUND,$(call g4gmake_wrap_cmake_boolean,$v))
 
-# - Translate VERBOSE <-> CPPVERBOSE
+# - Standard GMake uses VERBOSE, Geant4GMake CPPVERBOSE
+#   Translate to CPPVERBOSE if VERBOSE is set
 ifdef VERBOSE
 	CPPVERBOSE :=1
 endif
@@ -156,6 +157,16 @@ $(call g4gmake_config_variable,G4INSTALL,@GEANT4_INSTALL@)
 $(call g4gmake_config_variable,G4INCLUDE,@GEANT4_INCLUDE@)
 $(call g4gmake_config_variable,G4LIB,@GEANT4_LIB@)
 
+# - Preprocessor Constants
+# Intent is to replace these with #defines in header, so will eventually
+# go away.
+$(call g4gmake_config_variable,G4MULTITHREADED,$(call g4gmake_cmake_bool,@GEANT4_BUILD_MULTITHREADED@))
+
+# Next two variables have are handled with opposite logic
+# in Geant4 CMake/GMake, so need boolean inversion
+$(call g4gmake_config_variable,G4_NO_STORE_TRAJECTORY,$(if $(call g4gmake_cmake_bool,@GEANT4_BUILD_STORE_TRAJECTORY@),,1))
+$(call g4gmake_config_variable,G4_NO_VERBOSE,$(if $(call g4gmake_cmake_bool,@GEANT4_BUILD_VERBOSE_CODE@),,1))
+
 # - Default G4WORKDIR - current working directory?
 ifndef G4WORKDIR
   G4WORKDIR := /tmp
@@ -166,8 +177,13 @@ $(call g4gmake_process_datasets,@GEANT4_DATASET_DESCRIPTIONS@)
 # TODO: Check datasets at make time?
 # $(call g4gmake_check_datasets)
 
-# - Library build settings
-# CLHEP
+#-----------------------------------------------------------------------
+# - LIBRARY OPTIONAL COMPONENTS
+#   TODO: Convert to use of pkg-config to obtain paths of system installs
+#         NB: depends on how we use pkg-config for these (e.g. may hide
+#         system vs builtin use with "geant4-clhep.pc" for example.
+#-----------------------------------------------------------------------
+# - CLHEP
 override G4LIB_USE_CLHEP := $(call g4gmake_cmake_bool,@GEANT4_USE_SYSTEM_CLHEP@)
 ifdef G4LIB_USE_CLHEP
   $(call g4gmake_info,Geant4 uses internal clhep)
@@ -177,7 +193,7 @@ else
   override CLHEP_LIBDIR := @CLHEP_LIBDIR@ 
 endif
 
-# EXPAT
+# - EXPAT
 override G4LIB_USE_EXPAT := $(call g4gmake_cmake_bool,@GEANT4_USE_SYSTEM_EXPAT@)
 ifdef G4LIB_USE_EXPAT
   $(call g4gmake_info,Geant4 uses internal expat)
@@ -185,7 +201,7 @@ else
   $(call g4gmake_info,Geant4 uses system expat)
 endif
 
-# USolids
+# - USolids
 override G4LIB_USE_USOLIDS := $(call g4gmake_cmake_bool,@GEANT4_USE_SYSTEM_USOLIDS@)
 ifdef G4LIB_USE_USOLIDS
   $(call g4gmake_info,Geant4 uses internal USolids)
@@ -194,7 +210,7 @@ else
 endif
 
 
-# ZLIB
+# - ZLIB
 override G4LIB_USE_ZLIB := $(call g4gmake_cmake_bool,@GEANT4_USE_SYSTEM_ZLIB@)
 ifdef G4LIB_USE_ZLIB
   $(call g4gmake_info,Geant4 uses internal zlib)
@@ -207,11 +223,9 @@ endif
 # - Option variable names should ideally match to the G4GMake variables
 #   for ease of use. Need to watch for availability vs activation
 #-----------------------------------------------------------------------
-# Multithreading
-$(call g4gmake_option_variable,G4LIB_HAS_MULTITHREAD,@GEANT4_BUILD_MULTITHREADED@)
-
 # GDML
 $(call g4gmake_option_variable,G4LIB_HAS_GDML,@GEANT4_USE_GDML@)
+# - TODO: pkg-config for Xerces-C if GDML used
 
 # G3ToG4
 $(call g4gmake_option_variable,G4LIB_HAS_G3TOG4,@GEANT4_USE_G3TOG4@)
@@ -233,16 +247,18 @@ ifdef G4UI_HAS_QT
   override QTLIBPATH := -Lwhere libs were found
 endif
 
-# - Wt
-$(call g4gmake_option_variable,G4UI_HAS_WT,@WT_FOUND@)
+# - Wt UI/Vis
+$(call g4gmake_option_variable,G4UI_HAS_WT,@GEANT4_USE_WT@)
 
 # - Xm UI/Vis
+$(call g4gmake_option_variable,G4UI_HAS_XM,@GEANT4_USE_WT@)
+
 
 # - Network DAWN
-$(call g4gmake_option_variable,G4VIS_HAS_DAWN,@@)
+$(call g4gmake_option_variable,G4VIS_HAS_DAWN,@GEANT4_USE_NETWORKDAWN@)
 
 # - Network VRML
-$(call g4gmake_option_variable,G4VIS_HAS_VRML,@@)
+$(call g4gmake_option_variable,G4VIS_HAS_VRML,@GEANT4_USE_NETWORKVRML@)
 
 # - OpenInventor
 
@@ -255,7 +271,7 @@ ifdef G4UI_HAS_OGL
 endif
 
 # - X11 Raytracer
-$(call g4gmake_option_variable,G4VIS_HAS_RAYTRACERX,@@)
+$(call g4gmake_option_variable,G4VIS_HAS_RAYTRACERX,@GEANT4_USE_RAYTRACER_X11@)
 
 #-----------------------------------------------------------------------
 # Validate options against user supplied values
@@ -281,9 +297,5 @@ $(foreach o,$(G4GMAKE_OPTION_VARIABLES),\
 	)\
 )
 
-# - handle special cases here, that is, where we don't have the USE/HAS
-#   translation, like G4MULTITHREADED.
-#   By this point, any USE variables will have been validated
-ifdef G4LIB_USE_MULTITHREAD
-	override G4MULTITHREADED := 1
-endif
+
+

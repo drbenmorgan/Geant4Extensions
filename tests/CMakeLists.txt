@@ -45,6 +45,13 @@ add_test(NAME Geant4GMakeMultipleInclusion-Target
   )
 set_property(TEST Geant4GMakeMultipleInclusion-Target PROPERTY WILL_FAIL ON)
 
+# Boolean config variables
+configure_file(testGeant4GMakeConfigVariables.gmk.in testGeant4GMakeConfigVariables.gmk)
+add_test(NAME Geant4GMakeConfigVariables
+  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+  COMMAND ${CMAKE_MAKE_PROGRAM} -f tests/testGeant4GMakeConfigVariables.gmk GEANT4_BUILD_VERBOSE_CODE=${GEANT4_BUILD_VERBOSE_CODE}
+  )
+
 # Datasets
 configure_file(testGeant4GMakeDataset.gmk.in testGeant4GMakeDataset.gmk @ONLY)
 add_test(NAME Geant4GMakeDataset
