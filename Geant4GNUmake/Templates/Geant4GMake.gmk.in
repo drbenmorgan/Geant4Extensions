@@ -1,0 +1,301 @@
+# - Geant4GMake.gmk
+# Configure Geant4 GNU make system for building user applications
+#
+# To use, simply include it at the top level of your application's
+# GNUmakefile.
+#
+# This file is configured by Geant4's CMake system and SHOULD NOT BE EDITED
+#
+
+#          Copyright Ben Morgan <bmorgan.warwick@gmail.com> 2013
+# Distributed under the Boost Software License, Version 1.0.
+#    (See accompanying file LICENSE_1_0.txt or copy at
+#          http://www.boost.org/LICENSE_1_0.txt)
+
+# GEANT4GMAKE API
+#----------------------------------------------------------------------
+# API Constants
+#-----------------------------------------------------------------------
+# - Record inclusion, preventing multiple inclusion
+$(if $(G4GMAKE_INCLUDED),$(error "Geant4GMake.gmk included twice"),)
+override G4GMAKE_INCLUDED := 1
+
+# - Self locate ourselves
+override G4GMAKE_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+
+# - Path to the Geant4GMake custom targets file
+override G4GMAKE_TARGETS := $(G4GMAKE_DIR)/Geant4GMakeTargets.gmk
+
+# - List of valid values for an exported CMake variable to be false
+#   NB, The '-NOTFOUND' suffix is handled in the actual function
+g4gmake_wrap_cmake_boolean = x$1x
+G4GMAKE_CMAKE_FALSE := xx $(foreach v,0 OFF NO FALSE N IGNORE NOTFOUND,$(call g4gmake_wrap_cmake_boolean,$v))
+
+# - Standard GMake uses VERBOSE, Geant4GMake CPPVERBOSE
+#   Translate to CPPVERBOSE if VERBOSE is set
+ifdef VERBOSE
+	CPPVERBOSE :=1
+endif
+
+#-----------------------------------------------------------------------
+# API Functions
+#-----------------------------------------------------------------------
+#-----------------------------------------------------------------------
+# g4gmake_info : log a message to screen if CPPVERBOSE is set, otherwise
+#                do nothing
+#
+g4gmake_info = $(if $(CPPVERBOSE),$(info -- $(1)),)
+
+#-----------------------------------------------------------------------
+# g4gmake_cmake_true : Replace a cmake boolean with a gmake boolean
+#                      NB: note slightly odd logic due to checking value
+#                      against known CMake 'false' values
+g4gmake_cmake_bool = $(if $(findstring $(call g4gmake_wrap_cmake_boolean,$(1)),$(G4GMAKE_CMAKE_FALSE))$(findstring -NOTFOUND,$(1)),,1)
+
+#-----------------------------------------------------------------------
+# g4gmake_bool_asstring : Replace a make boolean with a string
+#
+g4gmake_bool_asstring = $(if $(value $(1)),$(2),$(3))
+
+#-----------------------------------------------------------------------
+# g4gmake_check_dir : Return a non-empty value if supplied directory
+#                     exists
+#
+g4gmake_check_dir = $(shell test -d $(1) && echo 1)
+
+#-----------------------------------------------------------------------
+# g4gmake_config_variable : Define a fixed variable that is part of the
+#                           Geant4 configuration
+#
+define __g4gmake_config_variable
+override $(1) := $(2)
+G4GMAKE_CONFIG_VARIABLES += $(1)
+endef
+
+g4gmake_config_variable = $(eval $(call __g4gmake_config_variable,$(1),$(2)))
+
+#-----------------------------------------------------------------------
+# g4gmake_option_variable : Define a fixed variable indicating availability
+#                           of a Geant4 optional component
+#
+define __g4gmake_option_variable
+override $(1) := $(2)
+G4GMAKE_OPTION_VARIABLES += $(1)
+endef
+
+g4gmake_option_variable = $(if $(call g4gmake_cmake_bool,$(2)),\
+                          $(eval $(call __g4gmake_option_variable,$(1),1)),\
+                          $(eval $(call __g4gmake_option_variable,$(1),)))
+
+#-----------------------------------------------------------------------
+# Dataset API
+#-----------------------------------------------------------------------
+# Configuration gives us "ANAME|AENVVAR|APATH:BNAME|BENVVAR|BPATH:..."
+# Want to extract a list of dataset names:
+#   G4DATASETS := ANAME BNAME
+# Plus per dataset vars:
+#  G4DATASET_ANAME_ENVVAR := ...
+#  G4DATASET_ANAME_PATH := ...
+#  G4DATASET_BNAME_PATH := ...
+# NB: Don't interfere with environment:
+#   1) Don't set environment
+#   2) ? If env var for dataset exists, use that and report source (use $(origin ...)?) ?
+# NB: Implementation does not handle paths with spaces
+# Special handling would be needed when configuring this file, e.g. replacing
+# spaces with special character(s).
+__g4gmake_set_dataset_names = $(foreach entry,$(subst ;, ,$(1)),$(word 1, $(subst |, ,$(entry))))
+
+__g4gmake_set_dataset_envvar = override G4DATASET_$(word 1, $(subst |, ,$(1)))_ENVVAR := $(word 2, $(subst |, ,$(1)))
+
+__g4gmake_set_dataset_path = override G4DATASET_$(word 1, $(subst |, ,$(1)))_PATH := $(word 3, $(subst |, ,$(1)))
+
+define __g4gmake_process_datasets
+override G4DATASETS := $(call __g4gmake_set_dataset_names,$(1))
+$(foreach entry,\
+	        $(subst ;, ,$(1)),\
+					$(eval $(call __g4gmake_set_dataset_envvar,$(entry))))
+$(foreach entry,\
+	        $(subst ;, ,$(1)),\
+					$(eval $(call __g4gmake_set_dataset_path,$(entry))))
+endef
+
+g4gmake_process_datasets = $(eval $(call __g4gmake_process_datasets,$(1)))
+
+#-----------------------------------------------------------------------
+# g4gmake_check_dataset : Check that a given dataset exists.
+#                         Note that this only checks that the
+#                         dataset is defined and that the directory
+#                         listed for it exists. No checking of version
+#                         is performed.
+#
+__g4gmake_check_dataset = $(if $(call g4gmake_check_dir,$(G4DATASET_$(1)_PATH)), \
+                          $(info - Geant4 dataset $(1) found : $(G4DATASET_$(1)_PATH)), \
+                          $(error - Geant4 dataset $(1) not found (expected at : $(G4DATASET_$(1)_PATH))))
+
+g4gmake_check_dataset = $(if $(findstring $(1),$(G4DATASETS)), \
+                        $(call __g4gmake_check_dataset,$(1)), \
+                        $(error unknown dataset "$(1)"))
+
+#-----------------------------------------------------------------------
+# g4gmake_check_datasets : Check that directories listed for all defined
+#                          datasets exists.
+#
+g4gmake_check_datasets = $(foreach d,$(G4DATASETS), \
+                         $(call g4gmake_check_dataset,$(d)))
+
+
+#-----------------------------------------------------------------------
+# Configuration of this Geant4GMake instance - Configured by CMake
+#-----------------------------------------------------------------------
+# - Always warn that system is deprecated
+$(warning "Geant4GMake is deprecated, please migrate to CMake or pkg-config")
+
+# - System Settings and Paths
+$(call g4gmake_config_variable,G4VERSION,@Geant4_VERSION@)
+$(call g4gmake_config_variable,G4SYSTEM,@GEANT4_SYSTEM@-@GEANT4_COMPILER@)
+$(call g4gmake_config_variable,G4INSTALL,@GEANT4_INSTALL@)
+$(call g4gmake_config_variable,G4INCLUDE,@GEANT4_INCLUDE@)
+$(call g4gmake_config_variable,G4LIB,@GEANT4_LIB@)
+
+# - Preprocessor Constants
+# Intent is to replace these with #defines in header, so will eventually
+# go away.
+$(call g4gmake_config_variable,G4MULTITHREADED,$(call g4gmake_cmake_bool,@GEANT4_BUILD_MULTITHREADED@))
+
+# Next two variables have are handled with opposite logic
+# in Geant4 CMake/GMake, so need boolean inversion
+$(call g4gmake_config_variable,G4_NO_STORE_TRAJECTORY,$(if $(call g4gmake_cmake_bool,@GEANT4_BUILD_STORE_TRAJECTORY@),,1))
+$(call g4gmake_config_variable,G4_NO_VERBOSE,$(if $(call g4gmake_cmake_bool,@GEANT4_BUILD_VERBOSE_CODE@),,1))
+
+# - Default G4WORKDIR - current working directory?
+ifndef G4WORKDIR
+  G4WORKDIR := /tmp
+endif
+
+# - Datasets
+$(call g4gmake_process_datasets,@GEANT4_DATASET_DESCRIPTIONS@)
+# TODO: Check datasets at make time?
+# $(call g4gmake_check_datasets)
+
+#-----------------------------------------------------------------------
+# - LIBRARY OPTIONAL COMPONENTS
+#   TODO: Convert to use of pkg-config to obtain paths of system installs
+#         NB: depends on how we use pkg-config for these (e.g. may hide
+#         system vs builtin use with "geant4-clhep.pc" for example.
+#-----------------------------------------------------------------------
+# - CLHEP
+override G4LIB_USE_CLHEP := $(call g4gmake_cmake_bool,@GEANT4_USE_SYSTEM_CLHEP@)
+ifdef G4LIB_USE_CLHEP
+  $(call g4gmake_info,Geant4 uses internal clhep)
+else
+  $(call g4gmake_info,Geant4 uses system clhep)
+  override CLHEP_INCLUDE_DIR := @CLHEP_INCLUDE_DIR@
+  override CLHEP_LIBDIR := @CLHEP_LIBDIR@ 
+endif
+
+# - EXPAT
+override G4LIB_USE_EXPAT := $(call g4gmake_cmake_bool,@GEANT4_USE_SYSTEM_EXPAT@)
+ifdef G4LIB_USE_EXPAT
+  $(call g4gmake_info,Geant4 uses internal expat)
+else
+  $(call g4gmake_info,Geant4 uses system expat)
+endif
+
+# - USolids
+override G4LIB_USE_USOLIDS := $(call g4gmake_cmake_bool,@GEANT4_USE_SYSTEM_USOLIDS@)
+ifdef G4LIB_USE_USOLIDS
+  $(call g4gmake_info,Geant4 uses internal USolids)
+else
+  $(call g4gmake_info,Geant4 uses system USolids)
+endif
+
+
+# - ZLIB
+override G4LIB_USE_ZLIB := $(call g4gmake_cmake_bool,@GEANT4_USE_SYSTEM_ZLIB@)
+ifdef G4LIB_USE_ZLIB
+  $(call g4gmake_info,Geant4 uses internal zlib)
+else
+  $(call g4gmake_info,Geant4 uses system zlib)
+endif
+
+#-----------------------------------------------------------------------
+# - Optional component availability/configuration
+# - Option variable names should ideally match to the G4GMake variables
+#   for ease of use. Need to watch for availability vs activation
+#-----------------------------------------------------------------------
+# GDML
+$(call g4gmake_option_variable,G4LIB_HAS_GDML,@GEANT4_USE_GDML@)
+# - TODO: pkg-config for Xerces-C if GDML used
+
+# G3ToG4
+$(call g4gmake_option_variable,G4LIB_HAS_G3TOG4,@GEANT4_USE_G3TOG4@)
+
+#-----------------------------------------------------------------------
+# - User Interface and Visualization Modules
+#-----------------------------------------------------------------------
+# - Terminal UI
+$(call g4gmake_option_variable,G4UI_HAS_TERMINAL,1)
+$(call g4gmake_option_variable,G4UI_HAS_TCSH,@UNIX@)
+$(call g4gmake_option_variable,G4UI_HAS_GAG,1)
+
+# - Qt UI/Vis
+$(call g4gmake_option_variable,G4UI_HAS_QT,@Qt4_FOUND@)
+ifdef G4UI_HAS_QT
+	# Will have to worry about Frameworks on Mac
+	override QTMOC := @QT_MOC_EXECUTABLE@
+  override QTFLAGS := -IA -IB etc
+  override QTLIBPATH := -Lwhere libs were found
+endif
+
+# - Wt UI/Vis
+$(call g4gmake_option_variable,G4UI_HAS_WT,@GEANT4_USE_WT@)
+
+# - Xm UI/Vis
+$(call g4gmake_option_variable,G4UI_HAS_XM,@GEANT4_USE_WT@)
+
+
+# - Network DAWN
+$(call g4gmake_option_variable,G4VIS_HAS_DAWN,@GEANT4_USE_NETWORKDAWN@)
+
+# - Network VRML
+$(call g4gmake_option_variable,G4VIS_HAS_VRML,@GEANT4_USE_NETWORKVRML@)
+
+# - OpenInventor
+
+# - X11 OpenGL
+$(call g4gmake_option_variable,G4UI_HAS_OGL,@something@)
+ifdef G4UI_HAS_OGL
+  # Frameworks on mac again
+  override OGLFLAGS := -I@OPENGL_INCLUDE_DIR@
+  override OGLLIBS := -Lsome libpath
+endif
+
+# - X11 Raytracer
+$(call g4gmake_option_variable,G4VIS_HAS_RAYTRACERX,@GEANT4_USE_RAYTRACER_X11@)
+
+#-----------------------------------------------------------------------
+# Validate options against user supplied values
+# Logic is that user should not be able to enable anything that isn't
+# available in *this* install
+# Should be a case of iteratting over the list of optionals, transforming
+# them from XX_HAS_YY to XX_USE_YY, but will have special cases, so handle
+# them afterwards.
+
+# Enable everything if G4LIB_USE_ALL is specified
+__g4_set_has_to_use = override $(subst HAS,USE,$1) := 1
+ifdef G4LIB_USE_ALL
+$(foreach o,$(G4GMAKE_OPTION_VARIABLES),\
+  $(if $(value $(o)),$(eval $(call __g4_set_has_to_use,$(o))),))
+endif
+
+$(foreach o,$(G4GMAKE_OPTION_VARIABLES),\
+	$(if $(value $(subst HAS,USE,$(o))),\
+	  $(if $(value $(o)),\
+		  $(call g4gmake_info,activating $(o) [asked for via $(origin $(subst HAS,USE,$(o)))]),\
+		  $(error this install of Geant4 does not support $(subst HAS,USE,$(o)) [asked for via $(origin $(subst HAS,USE,$(o)))]),\
+	  )\
+	)\
+)
+
+
+

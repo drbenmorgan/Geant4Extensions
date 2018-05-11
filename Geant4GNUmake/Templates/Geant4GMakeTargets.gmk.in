@@ -1,0 +1,76 @@
+# - Geant4GMakeTargets.gmk
+# A set of custom targets to help with using Geant4's GNU make
+# build system. They are mainly query type targets to report on the
+# current Geant4 build/install being used.
+#
+# TODO: See if the documentation can be kept separate in MD/similar
+#       files and read/printed in. Might allow easier documentation
+#       and better integration with other docs
+#
+
+#          Copyright Ben Morgan <bmorgan.warwick@gmail.com> 2013
+# Distributed under the Boost Software License, Version 1.0.
+#    (See accompanying file LICENSE_1_0.txt or copy at
+#          http://www.boost.org/LICENSE_1_0.txt)
+
+#----------------------------------------------------------------------
+# Only make targets available if Geant4GMake.gmk has been included
+#
+ifdef G4GMAKE_INCLUDED
+.PHONY : geant4_help geant4_help_config geant4_help_options geant4_help_settings geant4_help_datasets
+
+geant4_help: geant4_help_config geant4_help_options geant4_help_settings geant4_help_datasets
+
+geant4_help_config:
+	@echo "===================="
+	@echo "Geant4 Configuration"
+	@echo "===================="
+	@echo G4GMAKE_DIR : $(G4GMAKE_DIR)
+	@$(foreach v,$(G4GMAKE_CONFIG_VARIABLES),echo $(v) : $($v);)
+	@echo ""
+
+geant4_help_settings:
+	@echo "==============="
+	@echo "Geant4 Settings"
+	@echo "==============="
+	@echo "The following variables may be set prior including Geant4GMake.gmk"
+	@echo "to influence the build"
+	@echo ""
+	@echo "G4WORKDIR: Output directory for build products"
+	@echo ""
+
+geant4_help_options:
+	@echo "=========================="
+	@echo "Geant4 Option Availability"
+	@echo "=========================="
+	@echo "The following variables indicate the availability of optional"
+	@echo "components in this build of Geant4. By default, an application"
+	@echo "build will enable all available components."
+	@echo "To require availability and use of a specific component in your"
+	@echo "application, set its variable before including Geant4GMake.gmk."
+	@echo "For example, to require and use the GDML module, put"
+	@echo ""
+	@echo "  G4LIB_USE_GDML := 1"
+	@echo ""
+	@echo "prior to including Geant4GMake.gmk. Components may also be disabled"
+	@echo "with"
+	@echo ""
+	@echo "  G4LIB_USE_GDML := OFF"
+	@echo ""
+	@echo "If a component is requested but not available, an error will be emitted."
+	@$(foreach v,$(G4GMAKE_OPTION_VARIABLES),echo $(v) : $(call g4gmake_bool_asstring,$($v),yes,no);)
+	@echo ""
+
+geant4_help_datasets:
+	@echo "==================================="
+	@echo "Geant4 Dataset Configuration"
+	@echo "==================================="
+	@echo "NAME : (ENVIRONMENT VARIABLE, PATH)"
+	@echo "-----------------------------------"
+	@$(foreach v,$(G4DATASETS),\
+               echo "$(v) : $(G4DATASET_$(v)_ENVVAR), $(G4DATASET_$(v)_PATH)";)
+	@echo ""
+
+else
+$(info "-- [Geant4GMakeTargets.gmk] Geant4GMake.gmk not loaded, disabling custom targets")
+endif

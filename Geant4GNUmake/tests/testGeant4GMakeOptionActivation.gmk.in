@@ -1,0 +1,22 @@
+# - Test Makefile for Geant4GMake
+# TODO: DEFINE TESTS
+#       Need to confirm that options are activated
+#       and that non-supported options result in error
+
+# set options
+CPPVERBOSE := 1
+
+# - Generate the include path
+#   TODO: make this accessible from a geant4-config call
+include @PROJECT_BINARY_DIR@/InstallTreeFiles/Geant4GMake.gmk
+
+# - Phony targets
+.PHONY: all
+
+all:
+	@echo "all o.k."
+
+include @PROJECT_BINARY_DIR@/InstallTreeFiles/Geant4GMakeTargets.gmk
+
+$(error TODO: DEFINE TESTS)
+

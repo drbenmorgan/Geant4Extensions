@@ -1,0 +1,17 @@
+# - Test Geant4GMake for building a Geant4 example application
+
+name := testApplication
+G4TARGET := $(name)
+G4EXLIB := true
+
+# geant4-config gives make fragment path
+include $(shell geant4-config --gmake-file)
+
+.PHONY: all
+all: lib bin
+
+include $(G4INSTALL)/config/binmake.gmk
+
+# Optional geant4_help target(s)
+include $(G4GMAKE_TARGETS)
+
